@@ -23,6 +23,7 @@ django-templatetag-sugar
 django_compressor
 -e git+http://github.com/simonw/django-html.git#egg=django-html
 -e git+git://github.com/robhudson/django-debug-toolbar.git#egg=django-debug-toolbar
+-e git+git://github.com/threadsafelabs/django-poseur.git#egg=django-poseur
 mock
 nose
 BeautifulSoup

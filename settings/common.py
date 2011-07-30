@@ -65,6 +65,7 @@ INSTALLED_APPS = (
     'sentry',
     'sentry.client',
     'django_nose',
+    'poseur',
     
     # internal
     'app.apps.project',
