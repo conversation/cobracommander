@@ -4,8 +4,6 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from .models import Project
 
-raise False
-
 def index(request):
   """SUP BITCHES"""
   
