@@ -4,8 +4,12 @@
     <ul>
     {% for project in projects %}
       <li>
-        {{project}}
-        
+        <a href="{{project.get_absolute_url}}">{{project}}</a>
+        {% if project.builds.all|length_is:0 %}
+          <p>You haven't run any builds yet. Need a hand setting up?</p>
+        {% else %}
+          <p>You have run builds!</p>
+        {% endif %}
       </li>
     {% endfor %}
     </ul>

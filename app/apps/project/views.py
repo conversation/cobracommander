@@ -29,6 +29,10 @@ def create(request):
     }, context_instance=RequestContext(request))
 
 def show(request, project_name_slug):
+  project = get_object_or_404(Project, name_slug=project_name_slug)
+  return render_to_response('project/show.html', {
+    "project": project
+  }, context_instance=RequestContext(request))
   return
 
 def new(request):
