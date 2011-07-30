@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.conf.urls.defaults import *
-from .views import project
+from .views import *
+
 
 urlpatterns = patterns('',
-    url(r'^new/$', project.create, name='create'),
-    url(r'^$', project.index, name='index'),
-    url(r'^(?P<project_name_slug>[0-9A-Za-z-]+)/$', project.show, name='show'),
-    url(r'^(?P<project_name_slug>[0-9A-Za-z-]+)/delete/$', project.delete, name='delete'),
+    # url(r'^project/new/$', create, name='create'),
+    url(r'^$', index, name='index'),
+    # url(r'^project/(?P<project_name_slug>[0-9A-Za-z-]+)/$', show, name='show'),
+    # url(r'^project/(?P<project_name_slug>[0-9A-Za-z-]+)/delete/$', delete, name='delete'),
 )

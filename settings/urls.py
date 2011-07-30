@@ -12,7 +12,7 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('',
-    url(r'^project', include('%s.app.apps.project.urls' % settings.PROJECT_MODULE, namespace='project')),
+    url(r'^', include('%s.app.apps.project.urls' % settings.PROJECT_MODULE, namespace='project')),
     url(r'^project', include('%s.app.apps.build.urls' % settings.PROJECT_MODULE, namespace='build')),
 )
 
