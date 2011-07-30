@@ -20,15 +20,16 @@ class ProjectForm(ModelForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         name = cleaned_data.get('name')
+        branch = cleaned_data.get('branch')
         
         if name:
             slug = u'%s' % slugify(name)
             self.cleaned_data['name_slug'] = slug
             try:
-                Project.objects.get(name_slug=slug) # raises error if record exists
+                Project.objects.get(name_slug=slug, branch=branch) # raises error if record exists
                 del cleaned_data["name_slug"]
                 self._errors["name"] = self.error_class([
-                    "A Project with that name already exists"
+                    "A Project with that name and branch already exists"
                 ])
             except Exception, e:
                 pass
