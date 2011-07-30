@@ -31,7 +31,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 TEMPLATE_TAGS = (
     'django.templatetags.future',
-    'typogrify',
+    'typogrify.templatetags.typogrify',
 )
 
 MIDDLEWARE_CLASSES = (
