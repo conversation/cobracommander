@@ -35,8 +35,7 @@ INSTALLED_APPS = tuple(INSTALLED_APPS)
 # database
 # --------------------------------------
 DATABASES['default']['NAME'] = '%s_development' % PROJECT_NAME
-DATABASES['default']['USER'] = 'justin'
-DATABASES['default']['PASSWORD'] = ''
+
 
 
 # debug toolbar config

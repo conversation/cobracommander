@@ -33,6 +33,7 @@ Get the code, install requirements, set up DB, etc...
 
 	git clone git@github.com:tc/cobracommander project/cobracommander
 	pip install -r REQUIREMENTS
+	createdb cobracommander_development
 	django-admin.py syncdb
 	django-admin.py migrate
 

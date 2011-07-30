@@ -1,6 +1,6 @@
 from .default import *
 
-PROJECT_NAME = 'cobracommnander'
+PROJECT_NAME = 'cobracommander'
 SERVER_NAME = ''
 
 ADMINS = (('Justin Morris', 'error-reports@pixelbloom.com'),)
@@ -13,8 +13,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': '%s_production' % PROJECT_NAME,
-        'USER':'justin',
-        'PASSWORD':'',
         'TEST_NAME':'%s_test' % PROJECT_NAME
     }
 }
