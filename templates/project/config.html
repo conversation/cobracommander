@@ -4,6 +4,10 @@
   <section>
     <h1>{{project}}</h1>
     <p>Here is some sane config for getting started.</p>
+    
+    {% if first_time %}
+    <p>SOMEONE SET US UP THE PROJECT!!</p>
+    {% endif %}
     <ul>
       {% for key, label in build_templates.items %}
         <li><input type="radio" value="{{key}}" name="template" id="template-{{key}}"><label for="template-{{key}}">{{label}}</label></li>
