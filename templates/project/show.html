@@ -1,10 +1,14 @@
-<section>
-  <h1>{{project}}</h1>
-  <ol>
-    {% for build in builds %}
-    <li>{{build}}</li>
-    {% endfor %}
-  </ol>
-</section>
+{% extends "_base.html" %}
 
-<a href="{% url 'project:index' %}">Back to my projects</a>
+{% block main %}
+  <section>
+    <h1>{{project}}</h1>
+    <ol>
+      {% for build in builds %}
+      <li>{{build}}</li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <a href="{% url 'project:index' %}">Back to my projects</a>  
+{% endblock %}
