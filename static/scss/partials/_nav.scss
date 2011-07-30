@@ -1,0 +1,74 @@
+nav{
+    $offset:        0px;
+    $nav_height:    34px;
+    $nav:           ('home', 60px),
+                    ('jobs', 57px),
+                    ('regional-profiles', 156px),
+                    ('why-practise-in-rrr-areas', 230px),
+                    ('development-opportunities', 233px),
+                    ('what-is-rrr-law', 151px);
+    
+    @include module(12);
+    margin-bottom:$baseline*4;
+    ul{
+        @include clearfix;
+        li{
+            position:relative;
+            float:left;
+            display:inline-block;
+            padding:0;
+            background:none;
+            >a{
+                display:block;
+                height:$nav_height;
+                text-indent:-9999px;
+                background-color:transparent;
+                background-image:url('/static/images/nav.png');
+                @for $index from 1 through length($nav) {
+                    $item: nth($nav, $index);
+                    @if $index > 1 { $offset: $offset - nth(nth($nav, $index - 1), 2); }
+                    &.#{nth($item, 1)} {
+                        width:nth($item, 2);
+                        background-position:#{$offset} 0;
+                        &:hover, &.hover{ background-position:#{$offset} -#{$nav_height}; }
+                        &:active, &.active{ background-position:#{$offset} -#{$nav_height*2}; }
+                    }
+                }
+            }
+            div{
+                padding-top:10px;
+                display:none;
+                position:absolute;
+                top:$nav_height;
+                left:0;
+                ul{
+                    background:#9C9C9C;
+                    @include rounded(5px);
+                    li{
+                        width:100%;
+                        display:block;
+                        background:none;
+                        a{
+                            min-width:200px;
+                            color:#EDEDED;
+                            font-size:13px;
+                            display:block;
+                            height:auto;
+                            text-indent:0px;
+                            background:none;
+                            padding:3px 10px;
+                            text-decoration:none;
+                            white-space:nowrap;
+                            &:hover{
+                                text-decoration:underline;
+                            }
+                        }
+                    }
+                }
+            }
+            &:hover div, .hover div{
+                display:block;
+            }
+        }
+    }
+}

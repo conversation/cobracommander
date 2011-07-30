@@ -1,0 +1,32 @@
+django==1.3
+psycopg2==2.4.1
+PIL
+django_extensions
+south
+gunicorn
+markdown
+smartypants
+typogrify
+dogslow
+sorl-thumbnail
+-e git+https://github.com/brosner/django-timezones.git#egg=django-timezones
+django-sentry
+django_nose
+werkzeug
+pytz
+xhtml2pdf
+reportlab
+html5lib
+pypdf
+django-paging
+django-templatetag-sugar
+django_compressor
+-e git+http://github.com/simonw/django-html.git#egg=django-html
+-e git+git://github.com/robhudson/django-debug-toolbar.git#egg=django-debug-toolbar
+mock
+nose
+BeautifulSoup
+selenium
+nosedjango
+splinter
+lettuce

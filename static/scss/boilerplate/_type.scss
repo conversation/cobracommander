@@ -1,0 +1,52 @@
+@function baseline($count:1){
+    @return $baseline * $count;
+}
+
+
+body{
+    font-size:14px;
+    line-height:baseline(4);
+    font-family: "Helvetica Neue", helvetica, arial, sans-serif;
+    color:$color;
+}
+
+h1, h2, h3, h4, h5, h6{
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+}
+
+h1{
+    color:#517B96;
+    font-size:36px;
+    line-height:baseline(6);
+    padding:0 0 baseline(2) 0;
+}
+
+h2{
+    color:$blue;
+    font-size:24px;
+    line-height:baseline(4);
+}
+
+h3{
+    color:$blue;
+    font-size:18px;
+    line-height:baseline(4);
+}
+
+p, ul, ol{
+    margin-bottom:baseline(4);
+}
+ul, ol{
+    ul, ol{
+        margin-bottom:0;
+    }
+}
+
+a{
+    text-decoration:underline;
+    color:#4E4E4E;
+    &:hover{
+        color:#363636;
+    }
+}

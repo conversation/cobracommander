@@ -1,0 +1,35 @@
+@function module($count:1){
+    @return (($module_width + $gutter) * $count)
+}
+
+@mixin grid_container{
+    margin:0 auto;
+    width: (($module_width + $gutter) * $num_modules);
+    @if $show_grid != false {
+        background-image:url(../images/grid.png);
+        background-position:$gutter/2 0;
+    }
+}
+
+@mixin module($count:1){
+    width: (($module_width + $gutter) * $count) - $gutter;
+    margin-right: $gutter/2;
+    margin-left: $gutter/2;
+    display: inline-block;
+    float: left;
+    zoom:1;
+    @if $show_grid != false {
+        outline: 1px solid rgba(0, 0, 255, 0.5);
+    }
+}
+
+@mixin first{ margin-left: 0; }
+@mixin last{ margin-right: 0; }
+
+@mixin pre_module($count:1){
+    margin-left: (($module_width + $gutter) * $count) + $gutter/2;
+}
+
+@mixin post_module($count:1){
+    margin-right: (($module_width + $gutter) * $count) + $gutter/2;
+}

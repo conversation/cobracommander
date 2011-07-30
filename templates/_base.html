@@ -1,0 +1,47 @@
+{% load html %}{% doctype "html5" %}
+<html>
+<head>
+    {% load compress %}
+    <title>{% block title %}Cobra Commander{% endblock %}</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    {% compress css %}
+        {% block stylesheets %}
+            <link type="text/x-scss" rel="stylesheet" href="{{ STATIC_URL }}scss/screen.scss" charset="utf-8">
+        {% endblock stylesheets %}
+    {% endcompress %}
+</head>
+<body>
+    <div id="container">
+        {% block header %}
+            <header>
+                <div>
+                    {% block header-inner %}
+                        <hgroup>
+                            <a href="/" title="">
+                                <h1>Cobra Commander</h1>
+                            </a>
+                        </hgroup>
+                    {% endblock header-inner %}
+                </div>
+            </header>
+        {% endblock header %}
+        <section>
+            <div>
+                {% block main %}{% endblock %}
+            </div>
+        </section>
+        {% block footer %}
+            <footer>
+                <div>
+                    {% block footer-inner %}{% endblock footer-inner %}
+                </div>
+            </footer>
+        {% endblock footer %}
+    </div>
+    {% compress js %}
+        <script type="text/javascript" src="{{ STATIC_URL }}scripts/vendor/jquery.1.6.1.js"></script>
+        <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/application.coffee"></script>
+        {% block scripts %}{% endblock scripts %}
+    {% endcompress %}
+</body>
+</html>
