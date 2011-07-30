@@ -63,6 +63,8 @@ INSTALLED_APPS = (
     'django_html',
     'django_nose',
     'poseur',
+    'djkombu',
+    'djcelery',
     
     # internal
     'app.apps.project',

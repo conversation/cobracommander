@@ -11,10 +11,10 @@ NOSE_ARGS = ['--with-django', '--stop']
 # -----------------------------------------------
 import djcelery
 djcelery.setup_loader()
-# CELERY_DISABLE_RATE_LIMITS = True
-# CELERYD_MAX_TASKS_PER_CHILD = 1
-# CELERYD_CONCURRENCY = 1
-# CELERYD_PREFETCH_MULTIPLIER = 1
+CELERY_DISABLE_RATE_LIMITS = True
+CELERYD_MAX_TASKS_PER_CHILD = 1
+CELERYD_CONCURRENCY = 1
+CELERYD_PREFETCH_MULTIPLIER = 1
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
