@@ -39,9 +39,9 @@
         {% endblock footer %}
     </div>
     {% compress js %}
-        {# <script type="text/javascript" src="{{ STATIC_URL }}scripts/vendor/jquery.1.6.1.js"></script> #}
-        {#         <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/application.coffee"></script> #}
-        {#         {% block scripts %}{% endblock scripts %} #}
+        <script type="text/javascript" src="{{ STATIC_URL }}scripts/vendor/jquery.1.6.1.js"></script>
+        <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/application.coffee"></script>
+        {% block scripts %}{% endblock scripts %}
     {% endcompress %}
 </body>
 </html>
