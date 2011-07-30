@@ -15,6 +15,7 @@ class ProjectForm(ModelForm):
     # fields
     legend = u'Create a New Project'
     name_slug = forms.CharField(widget=forms.HiddenInput, required=False)
+    builds = forms.CharField(widget=forms.HiddenInput, required=False)
     
     def clean(self):
         cleaned_data = self.cleaned_data

@@ -1,1 +1,10 @@
-{{ form }}
+{% extends "_base.html" %}
+
+{% block main %}
+  <form action="" method="post" accept-charset="utf-8">
+    {% for field in form %}
+      {% include "_common/_field.html" %}
+    {% endfor %}
+    <p><input type="submit" value="Continue &rarr;"></p>
+  </form>
+{% endblock %}

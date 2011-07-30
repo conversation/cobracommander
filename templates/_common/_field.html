@@ -1,0 +1,18 @@
+{% load html %}
+{% if not field.is_hidden %}
+    <div class="input-wrapper">
+        {{ field.label_tag }}
+        {% field field %}
+        <div class="meta">
+            {% if field.errors %}
+                {{ field.errors }}
+            {% else %}
+                {% if field.help_text %}
+                    <em>{{ field.help_text }}</em>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    {{ field }}
+{% endif %}
