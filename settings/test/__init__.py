@@ -1,3 +1,4 @@
+import os
 from ..development import *
 
 
@@ -19,7 +20,6 @@ LETTUCE_AVOID_APPS = (
     'gunicorn',
     'typogrify',
     'django_html',
-    'sorl.thumbnail',
     'django_nose',
     'django_extensions',
 )
@@ -32,7 +32,5 @@ TESTING_APPS = [
 INSTALLED_APPS = list(INSTALLED_APPS)
 INSTALLED_APPS += TESTING_APPS
 INSTALLED_APPS.remove('south')
-INSTALLED_APPS.remove('sentry')
 INSTALLED_APPS.remove('debug_toolbar')
-INSTALLED_APPS.remove('sentry.client')
 INSTALLED_APPS = tuple(INSTALLED_APPS)
