@@ -61,9 +61,6 @@ INSTALLED_APPS = (
     'gunicorn',
     'typogrify',
     'django_html',
-    'sorl.thumbnail',
-    'sentry',
-    'sentry.client',
     'django_nose',
     'poseur',
     
