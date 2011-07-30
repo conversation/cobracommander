@@ -15,6 +15,9 @@
         </li>
       {% endfor %}
       </ul>
+      <p><a href="{% url "project:create" %}">I must have more.</a></p>
+    {% else %}
+      <p>No projects yet :(. <a href="{%url "project:create" %}">Set us up one.</a></p>
     {% endif %}
   </section>
 {% endblock %}

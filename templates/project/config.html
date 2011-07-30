@@ -1,0 +1,18 @@
+{% extends "_base.html" %}
+
+{% block main %}
+  <section>
+    <h1>{{project}}</h1>
+    <p>Here is some sane config for getting started.</p>
+    <ul>
+      {% for key, label in build_templates.items %}
+        <li><input type="radio" value="{{key}}" name="template" id="template-{{key}}"><label for="template-{{key}}">{{label}}</label></li>
+      {% endfor %}
+    </ul>
+    <textarea name="default-config" rows="8" cols="40">
+      
+    </textarea>
+  </section>
+
+  <a href="{% url 'project:index' %}">Back to my projects</a>  
+{% endblock %}

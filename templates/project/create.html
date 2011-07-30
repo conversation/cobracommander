@@ -2,6 +2,7 @@
 
 {% block main %}
   <form action="" method="post" accept-charset="utf-8">
+    {% csrf_token %}
     {% for field in form %}
       {% include "_common/_field.html" %}
     {% endfor %}
