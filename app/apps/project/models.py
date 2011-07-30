@@ -13,7 +13,7 @@ class Project(models.Model):
     name_slug = models.SlugField(blank=False, db_index=True)
     repo_url = models.CharField(blank=False, max_length=255)
     description = models.TextField(blank=True)
-    builds = models.ManyToManyField(Build)
+    builds = models.ManyToManyField(Build, blank=True, null=True)
     
     def __unicode__(self):
         return u"%s" % (self.name)
