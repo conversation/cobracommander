@@ -12,7 +12,8 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('',
-    # url(r'account^', include('%s.app.apps.account.urls' % settings.PROJECT_MODULE, namespace='account')),
+    url(r'^project', include('%s.app.apps.project.urls' % settings.PROJECT_MODULE, namespace='project')),
+    url(r'^project', include('%s.app.apps.build.urls' % settings.PROJECT_MODULE, namespace='build')),
 )
 
 urlpatterns += staticfiles_urlpatterns()
