@@ -11,7 +11,7 @@ class Project(models.Model):
     
     name = models.CharField(blank=False, max_length=100)
     name_slug = models.SlugField(blank=False, db_index=True)
-    repo_url = models.CharField(blank=False, max_length=255)
+    repo_url = models.URLField(blank=True, verify_exists=True, db_index=True)
     branch = models.CharField(blank=False, max_length=100, default="master")
     description = models.TextField(blank=True)
     builds = models.ManyToManyField(Build, blank=True, null=True)
