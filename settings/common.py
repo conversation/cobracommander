@@ -42,7 +42,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
-    'dogslow.WatchdogMiddleware',
 )
 
 INSTALLED_APPS = (
