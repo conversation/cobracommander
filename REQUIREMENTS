@@ -1,23 +1,16 @@
 django==1.3
 psycopg2==2.4.1
-PIL
 django_extensions
 south
 gunicorn
 markdown
 smartypants
 typogrify
-dogslow
-sorl-thumbnail
 -e git+https://github.com/brosner/django-timezones.git#egg=django-timezones
-django-sentry
 django_nose
 werkzeug
 pytz
-xhtml2pdf
-reportlab
 html5lib
-pypdf
 django-paging
 django-templatetag-sugar
 django_compressor
@@ -31,3 +24,6 @@ selenium
 nosedjango
 splinter
 lettuce
+https://github.com/ask/django-kombu/tarball/v0.9.1
+celery
+django-celery
