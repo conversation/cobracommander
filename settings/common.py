@@ -69,4 +69,5 @@ INSTALLED_APPS = (
     'django_nose',
     
     # internal
+    'app.apps.build',
 )
