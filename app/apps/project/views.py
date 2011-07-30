@@ -9,7 +9,7 @@ def index(request):
   
   projects = Project.objects.all()
   return render_to_response('project/index.html', {
-    # Stuff
+    "projects": projects
   }, context_instance=RequestContext(request))
 
 def create(request):

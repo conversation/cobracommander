@@ -1,1 +1,13 @@
-THIS IS THE MOTHER FING PROJECTS
+<section>
+  <h1>Cobra Commander</h1>
+  {% if projects %}
+    <ul>
+    {% for project in projects %}
+      <li>
+        {{project}}
+        
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+</section>
