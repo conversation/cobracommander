@@ -11,12 +11,24 @@ NOSE_ARGS = ['--with-django', '--stop']
 # -----------------------------------------------
 import djcelery
 djcelery.setup_loader()
+CELERY_TRACK_STARTED = True
 CELERY_DISABLE_RATE_LIMITS = True
 CELERYD_MAX_TASKS_PER_CHILD = 1
 CELERYD_CONCURRENCY = 1
 CELERYD_PREFETCH_MULTIPLIER = 1
 BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_IMPORTS = (
+    "app.apps.worker.tasks",
+)
+
+
+# relay config
+# -----------------------------------------------
+BUILDRELAY_HTTP_HOST = "127.0.0.1"
+BUILDRELAY_HTTP_PORT = 9992
+BUILDRELAY_SOCKET_HOST = "localhost"
+BUILDRELAY_SOCKET_PORT = 9991
 
 
 # compressor

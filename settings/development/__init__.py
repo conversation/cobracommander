@@ -38,6 +38,11 @@ INSTALLED_APPS = tuple(INSTALLED_APPS)
 DATABASES['default']['NAME'] = '%s_development' % PROJECT_NAME
 
 
+# celery
+# --------------------------------------
+CELERY_SEND_TASK_ERROR_EMAILS = True
+
+
 # debug toolbar config
 # --------------------------------------
 def show_dev_toolbar(request):
