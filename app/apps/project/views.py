@@ -14,8 +14,10 @@ def index(request):
     """SUP BITCHES"""
     
     projects = Project.objects.all()
+    build_queue = Build.objects.filter(state__in=['a','b'])
     return render_to_response('project/index.html', {
-    "projects": projects
+        "projects": projects,
+        "build_queue": build_queue
     }, context_instance=RequestContext(request))
 
 

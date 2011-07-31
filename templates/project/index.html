@@ -1,7 +1,23 @@
 {% extends "_base.html" %}
 
+{% block aside %}
+  <header>
+    <h2>Build queue:</h2>
+  </header>
+  <ul>
+    {% for build in build_queue %}
+      <li>{{ build }}</li>
+    {% empty %}
+      <li>No builds in progress</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+
 {% block main %}
   <section>
+    <header>
+    <h2>Projects:</h2>
+  </header>
     {% if projects %}
       <ul>
       {% for project in projects %}
