@@ -37,6 +37,23 @@ class Build(models.Model):
             'build_ref':self.ref
         })
 
+class Step(models.Model):
+    """Sup"""
+    
+    STATE_CHOICES = (
+        ("a", "pending",),
+        ("b", "running",),
+        ("c", "pass",),
+        ("d", "fail",),
+    )
+    
+    build = models.ForeignKey(Build)
+    command = models.CharField(blank=False, max_length=255)
+    created_datetime = models.DateTimeField(blank=True, default=datetime.datetime.now)
+    output = models.TextField(blank=True)
+    
+    state = models.CharField(blank=True, max_length=1, default="a", choices=STATE_CHOICES)
+
 @receiver(post_save, sender=Build)
 def trigger_build(sender, instance, **kwargs):
     async_build = exec_build.delay(build=instance)

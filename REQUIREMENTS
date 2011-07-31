@@ -28,3 +28,4 @@ lettuce
 https://github.com/ask/django-kombu/tarball/v0.9.1
 celery
 django-celery
+eventlet

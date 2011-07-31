@@ -66,8 +66,8 @@ class Builder:
         """
         execute the build command
         """
-        self.runner = Runner(source_path=self.clone_path, steps=self.steps)
-        print self.runner.run()
+        self.runner = Runner(source_path=self.clone_path, steps=self.steps, build=self.build)
+        print self.runner.run(self.build)
     
     
     def start(self):
