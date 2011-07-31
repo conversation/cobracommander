@@ -1,11 +1,9 @@
 from django.db import models
 from django.core.urlresolvers import reverse
-from django.db.models.signals import post_save
 from django.conf import settings
 import datetime
 
 from ..project.models import Project
-from .signals import trigger_build
 
 class Build(models.Model):
     """(Project description)"""
@@ -50,6 +48,3 @@ class Step(models.Model):
     created_datetime = models.DateTimeField(blank=True, default=datetime.datetime.now)
     output = models.TextField(blank=True)
     state = models.CharField(blank=True, max_length=1, default="a", choices=STATE_CHOICES)
-
-post_save.connect(trigger_build, sender=Build,
-    dispatch_uid="trigger-new-build")
