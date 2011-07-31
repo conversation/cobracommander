@@ -42,8 +42,10 @@ def show(request, project_name_slug):
     """docstring for show"""
     
     project = get_object_or_404(Project, name_slug=project_name_slug)
+    builds = Build.objects.filter(project=project)
     return render_to_response('project/show.html', {
-        "project": project
+        "project": project,
+        "builds": builds
     }, context_instance=RequestContext(request))
 
 
@@ -51,6 +53,7 @@ def config(request, project_name_slug):
     """docstring for config"""
     
     project = get_object_or_404(Project, name_slug=project_name_slug)
+
     first_time = request.GET.get('first', False)
     build_templates = {
         "django": "I am a Django man",

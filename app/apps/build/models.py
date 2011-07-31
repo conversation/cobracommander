@@ -31,7 +31,8 @@ class Build(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('build:show', (), {
-            'build_id':self.id
+            'build_id':self.id,
+            'project_name_slug':self.project.name_slug
         })
 
 class Step(models.Model):

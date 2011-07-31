@@ -12,7 +12,7 @@ urlpatterns = patterns('',
 
 urlpatterns += patterns('',
     url(r'^', include('%s.app.apps.project.urls' % settings.PROJECT_MODULE, namespace='project')),
-    url(r'^project', include('%s.app.apps.build.urls' % settings.PROJECT_MODULE, namespace='build')),
+    url(r'^', include('%s.app.apps.build.urls' % settings.PROJECT_MODULE, namespace='build')),
 )
 
 urlpatterns += staticfiles_urlpatterns()
