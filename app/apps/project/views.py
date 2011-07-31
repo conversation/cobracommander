@@ -69,7 +69,6 @@ def config(request, project_name_slug):
 
 def build(request, project_name_slug):
     """docstring for build"""
-    
     if request.method == 'POST':
         if 'payload' in request.POST:
             payload = json.loads(request.POST.get('payload'))
@@ -80,8 +79,8 @@ def build(request, project_name_slug):
                 name_slug=project_name_slug)
             build = Build(project=project, ref=ref)
             build.save()
-            return HttpResponse()
-        return HttpResponseBadRequest()
+            return HttpResponse('')
+        return HttpResponseBadRequest('')
     raise Http404
 
 

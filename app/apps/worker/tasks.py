@@ -4,7 +4,7 @@ from celery.decorators import task
 import time
 from .build_runner.builder import Builder
 
-@task(name='app.apps.worker.tasks', max_retries=0)
+@task(name='app.apps.worker.tasks')
 def exec_build(build):
     logger = exec_build.get_logger()
     logger.info("Running exec_build for %s:%s" % (build.project, build.ref))
@@ -15,4 +15,3 @@ def exec_build(build):
     
     builder = Builder(build=build)
     builder.start()
-    return
