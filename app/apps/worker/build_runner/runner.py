@@ -1,4 +1,5 @@
 import subprocess, shlex, os, time
+from app.apps.build.models import Step
 
 class Runner(object):
     def __init__(self, source_path, steps, build):

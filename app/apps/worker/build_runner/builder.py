@@ -83,7 +83,7 @@ class Builder:
         self.build.log += "Running the build...\n"
         self.build.save
         self.runner = Runner(source_path=self.clone_path, steps=self.steps, build=self.build)
-        print self.runner.run(self.build)
+        print self.runner.run()
     
     
     def start(self):
