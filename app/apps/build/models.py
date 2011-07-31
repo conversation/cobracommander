@@ -27,6 +27,7 @@ class Build(models.Model):
     created_datetime = models.DateTimeField(blank=True, default=datetime.datetime.now)
     start_datetime = models.DateTimeField(blank=True, null=True)
     end_datetime = models.DateTimeField(blank=True, null=True)
+    log = models.TextField(blank=True)
     
     def __unicode__(self):
         return u"%s" % (self.ref)

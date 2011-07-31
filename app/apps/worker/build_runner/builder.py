@@ -39,33 +39,49 @@ class Builder:
                 elif len(line) > 0 and current_step != None:
                     current_step.append(line)
             buildfile.close()
+            self.build.log += "Loaded %s build steps\n" % (len(self.steps))
+            self.build.save
         except Exception, e:
+            self.build.log += "Error loading build steps %s\n" % (e)
+            self.build.save
             raise e
     
     def clone(self):
         """
         pull down the remote repo
         """
+        self.build.log += "We'll store the repo here: '%s'\n" % (self.clone_path)
+        self.build.save
         if os.path.exists(self.clone_path):
             if git.repo.fun.is_git_dir(os.path.join(self.clone_path, '.git')):
                 os.chdir(self.clone_path)
+                self.build.log += "I don't know about this repo. Fetching the repo\n"
+                self.build.save
                 self.git.fetch()
             else:
                 raise False
         else:
+            self.build.log += "Cloning from '%s'\n" % (self.remote)
+            self.build.save
             self.git.clone(self.remote, self.clone_path)
         
         self.repo = git.Repo(self.clone_path)
         os.chdir(self.clone_path)
+        self.build.log += "Checking out %s\n" % (self.build_branch)
+        self.build.save
         self.git.reset('--hard', self.build_branch)
         head = self.repo.heads[0]
         head_commit = head.commit
+        self.build.log += "At commit %s\n" % (head_commit)
+        self.build.save
     
     
     def start_runner(self):
         """
         execute the build command
         """
+        self.build.log += "Running the build...\n"
+        self.build.save
         self.runner = Runner(source_path=self.clone_path, steps=self.steps, build=self.build)
         print self.runner.run(self.build)
     
