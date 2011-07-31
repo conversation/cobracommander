@@ -21,6 +21,7 @@ sys.path.append(PROJECT_ROOT)
 sys.path.append(environment('project'))
 
 TMP_ROOT = ensure_exists(environment('tmp'))
+BUILD_ROOT = ensure_exists(environment('tmp', 'builds'))
 MEDIA_ROOT = ensure_exists(environment('tmp', 'media'))
 MEDIA_URL = '/media/'
 STATIC_ROOT = project('static')
@@ -39,6 +40,7 @@ TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'en-au'
 ROOT_URLCONF = '%s.settings.urls' % PROJECT_MODULE
 IGNORABLE_404_STARTS = ('mail.pl', 'mailform.pl', 'mail.cgi', 'mailform.cgi', 'favicon.ico', 'favicon.ico/', '.php')
+BUILD_FILE_NAME = 'buildfile'
 
 
 # Authentication settings
