@@ -38,8 +38,8 @@ Get the code, install requirements, set up DB, etc...
 
 From here you should be able to run the app:
 
-    django-admin.py runserver_plus        # run the dev server
-    django-admin.py celeryd               # run the async worker
+    django-admin.py runserver_plus              # run the dev server
+    django-admin.py celeryd --loglevel=INFO     # run the async worker
 
 ...and run the test suite:
 
