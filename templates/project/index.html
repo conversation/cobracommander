@@ -22,7 +22,7 @@
       <ul>
       {% for project in projects %}
         <li>
-          <a href="{{project.get_absolute_url}}">{{project}}</a>
+          <a href="{{ project.get_absolute_url }}">{{ project }}</a>
           {% if project.builds.all|length_is:0 %}
             <p>You haven't run any builds yet. Need a hand setting up?</p>
           {% else %}
@@ -31,9 +31,9 @@
         </li>
       {% endfor %}
       </ul>
-      <p><a href="{% url "project:create" %}">I must have more.</a></p>
+      <p><a href="{% url project:create %}">I must have more.</a></p>
     {% else %}
-      <p>No projects yet :(. <a href="{%url "project:create" %}">Set us up one.</a></p>
+      <p>No projects yet :(. <a href="{% url project:create %}">Add a new Project</a></p>
     {% endif %}
   </section>
 {% endblock %}
