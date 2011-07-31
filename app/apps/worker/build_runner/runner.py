@@ -20,9 +20,9 @@ class Runner(object):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT
             )
+            current_step.state = 'b'
+            current_step.save()
             while self.process.poll() is None:
-                current_step.state = 'b'
-                current_step.save()
                 output = self.process.stdout.readline().strip()
                 if output:
                     step_output['output'] += output
@@ -32,7 +32,7 @@ class Runner(object):
                 current_step.state = 'c'
             else:
                 current_step.state = 'd'
-            current_step.save(0)
+            current_step.save()
             step_output['returncode'] = self.process.returncode
         except Exception, e:
             print e
