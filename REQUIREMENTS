@@ -23,6 +23,7 @@ BeautifulSoup
 selenium
 nosedjango
 splinter
+GitPython
 lettuce
 https://github.com/ask/django-kombu/tarball/v0.9.1
 celery
