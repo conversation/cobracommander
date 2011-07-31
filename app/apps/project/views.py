@@ -6,6 +6,7 @@ import json, string
 
 from .models import Project
 from .forms import ProjectForm
+from ..build.models import Build
 from ..worker.tasks import exec_build
 
 
@@ -70,9 +71,10 @@ def build(request, project_name_slug):
             url = payload['repository']['url']
             branch = string.replace(payload['ref'], 'refs/heads/', '')
             ref = payload['after'] if 'after' in payload else 'HEAD'
-            project = get_object_or_404(Project, repo_url=repo_url, branch=branch,
+            project = get_object_or_404(Project, repo_url=url, branch=branch,
                 name_slug=project_name_slug)
-            exec_build.delay(project=project, ref=ref)
+            build = Build(project=project, ref=ref)
+            build.save()
             return HttpResponse()
         return HttpResponseBadRequest()
     raise Http404
