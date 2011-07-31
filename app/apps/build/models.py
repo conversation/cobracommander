@@ -1,11 +1,11 @@
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.conf import settings
+import datetime
 
 from ..project.models import Project
-import datetime
+from .signals import trigger_build
 
 class Build(models.Model):
     """(Project description)"""
@@ -49,24 +49,7 @@ class Step(models.Model):
     command = models.CharField(blank=False, max_length=255)
     created_datetime = models.DateTimeField(blank=True, default=datetime.datetime.now)
     output = models.TextField(blank=True)
-    
     state = models.CharField(blank=True, max_length=1, default="a", choices=STATE_CHOICES)
 
-# @receiver(post_save, sender=Build)
-# def trigger_build(sender, instance, **kwargs):
-#     async_build = exec_build.delay(build=instance)
-#     # running_builds = Build.objects.filter(state='b')
-#     # if not len(running_builds):
-#     #     build = instance
-#     #     queue = multiprocessing.Queue()
-#     #     buildProcess = multiprocessing.Process(
-#     #         target=BuildWebsocketRelay,
-#     #         name='buildwebsocketrelay',
-#     #         kwargs={
-#     #             'port':settings.BUILDRELAY_SOCKET_PORT,
-#     #             'path': build.project.get_absolute_url(),
-#     #             'queue':queue,
-#     #         }
-#     #     )
-#     #     buildProcess.start()
-#     #     # async_build = exec_build.delay(build=build)
+post_save.connect(trigger_build, sender=Build,
+    dispatch_uid="trigger-new-build")
