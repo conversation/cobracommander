@@ -5,7 +5,7 @@
     <h1>{{ project }}</h1>
     <ol>
       {% for build in builds %}
-      <li>{{ build }}</li>
+      <li><a href="{{ build.get_absolute_url }}">{{ build }}</a></li>
       {% endfor %}
     </ol>
   </section>
