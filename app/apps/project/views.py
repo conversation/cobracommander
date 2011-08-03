@@ -2,12 +2,13 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.conf import settings
 import json, string
+import redis
 
 from .models import Project
 from .forms import ProjectForm
 from ..build.models import Build
-from ..worker.tasks import exec_build
 
 
 def index(request):
@@ -79,7 +80,12 @@ def build(request, project_name_slug):
                 name_slug=project_name_slug)
             build = Build(project=project, ref=ref)
             build.save()
-            return HttpResponse('')
+            
+            build_queue = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT,
+                db=settings.REDIS_DB)
+            build_queue.rpush('build_queue', build.id)
+            
+            return HttpResponseRedirect(build.get_absolute_url())
         return HttpResponseBadRequest('')
     raise Http404
 

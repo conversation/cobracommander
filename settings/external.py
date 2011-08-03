@@ -25,11 +25,11 @@ CELERY_IMPORTS = (
 
 # relay config
 # -----------------------------------------------
-BUILDRELAY_HTTP_HOST = "127.0.0.1"
-BUILDRELAY_HTTP_PORT = 9992
-BUILDRELAY_SOCKET_HOST = "localhost"
-BUILDRELAY_SOCKET_PORT = 9991
-
+BUILDRELAY_WEBSOCKET_HOST = "localhost"
+BUILDRELAY_WEBSOCKET_PORT = 9991
+REDIS_HOST = "localhost"
+REDIS_PORT = 6379 
+REDIS_DB = 0
 
 # compressor
 # -----------------------------------------------
