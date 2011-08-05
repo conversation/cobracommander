@@ -4,6 +4,7 @@ monkey.patch_all()
 from django.conf import settings
 import gevent
 from gevent import pywsgi
+from gevent import queue
 from geventwebsocket.handler import WebSocketHandler
 import redis
 
@@ -15,21 +16,20 @@ class BuildRelay(object):
     
     """
     def __init__(self):
-        super(ClassName, self).__init__()
-        
         self._connect_redis()
-        self.build_queue_listener()
-        self._start_server()
+        gevent.spawn(self.build_queue_listener)
+        self._init_server()
     
     
     def _connect_redis(self):
         """
         Connect to redis
         """
-        self.server = redis.Redis(**settings.REDIS_DATABASE)
+        print "connecting to redis on %(host)s:%(port)s db:%(db)s" % settings.REDIS_DATABASE
+        self.redis = redis.Redis(**settings.REDIS_DATABASE)
     
     
-    def _start_server(self):
+    def _init_server(self):
         """
         start the wsqi server
         """
@@ -42,6 +42,19 @@ class BuildRelay(object):
         self.server.serve_forever()
     
     
+    def build_queue_listener(self):
+        """
+        listen on the build queue for newly submitted builds
+        """
+        print "listening for incoming builds"
+        client = self.redis.pubsub()
+        client.subscribe('build_queue')
+        self.build_queue = client.listen()
+        
+        while True:
+            build = self.build_queue.next()
+    
+    
     def _route(self, environ, start_response):
         """
         route requests
@@ -52,23 +65,30 @@ class BuildRelay(object):
         if "wsgi.websocket" in environ:
             websocket = environ["wsgi.websocket"]
             if request_path.starts_with('/worker'):
-                views.worker_console(websocket)
+                return self.worker_console(start_response, websocket)
         else:
             if request_path == '/status':
-                views.relay_status()
-    
-    
-    def build_queue_listener(self):
-        """
-        listen on the build queue for newly submitted builds
-        """
-        client = self.server.pubsub()
-        client.subscribe('build_queue')
-        self.build_queue = client.listen()
+                return self.relay_status(start_response)
         
-        while True:
-            build = self.build_queue.next()
-            
+        start_response('404 Not Found', [('Content-Type', 'text/plain')])
+        return ['404 Not Found']
+    
+    
+    def relay_status(self, start_response):
+        """docstring for status"""
+        start_response('200 OK', [('Content-Type', 'text/plain')])
+        return [
+            "status: running.",
+            " - builds in queue: %s" % (self.redis.llen('build_queue'))
+        ]
+    
+    
+    def worker_console(self, start_response, websocket):
+        """docstring for status"""
+        start_response('200 OK', [('Content-Type', 'text/plain')])
+        return [
+            "websocket"
+        ]
 
 
 # 
