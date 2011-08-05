@@ -21,7 +21,7 @@ class Git(object):
         """docstring for run"""
         return subprocess.Popen(
             command,
-            cmd=settings.BUILD_ROOT,
+            cwd=settings.BUILD_ROOT,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
@@ -29,8 +29,8 @@ class Git(object):
 
 
 class Builder:
-    def __init__(self, build_id):
-        self.build = Build.objects.get(id=build_id)
+    def __init__(self, id):
+        self.build = Build.objects.get(id=id)
         self.build_project = self.build.project
         self.remote = self.build_project.repo_clone_url
         self.build_branch = 'origin/%s' % self.build_project.branch

@@ -81,8 +81,7 @@ def build(request, project_name_slug):
             build = Build(project=project, ref=ref)
             build.save()
             
-            build_queue = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT,
-                db=settings.REDIS_DB)
+            build_queue = redis.Redis(**settings.REDIS_DATABASE)
             build_queue.rpush('build_queue', build.id)
             
             return HttpResponseRedirect(build.get_absolute_url())
