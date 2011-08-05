@@ -36,8 +36,7 @@ class Builder:
         self.build_branch = 'origin/%s' % self.build_project.branch
         self.clone_path = os.path.join(settings.BUILD_ROOT, self.build_project.name_slug)
         self.git = Git(path=self.clone_path)
-        self.redis = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT,
-                db=settings.REDIS_DB)
+        self.redis = redis.Redis(**settings.REDIS_DATABASE)
         self.redis_key = "build_output_%s" % self.build.id
         self.steps = []
         self.pass_steps = []

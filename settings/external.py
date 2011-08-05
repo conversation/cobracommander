@@ -27,9 +27,12 @@ CELERY_IMPORTS = (
 # -----------------------------------------------
 BUILDRELAY_WEBSOCKET_HOST = "localhost"
 BUILDRELAY_WEBSOCKET_PORT = 9991
-REDIS_HOST = "localhost"
-REDIS_PORT = 6379 
-REDIS_DB = 0
+REDIS_DATABASE = {
+    'host':"localhost",
+    'port':6379,
+    'db':0
+}
+
 
 # compressor
 # -----------------------------------------------
