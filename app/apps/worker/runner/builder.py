@@ -1,6 +1,10 @@
+from gevent import monkey
+monkey.patch_all()
+# import gevent
+
 from django.conf import settings
 import os
-from multiprocessing import Process, Pipe
+# from multiprocessing import Process, Pipe
 import shutil
 import threading
 import redis
@@ -19,13 +23,14 @@ class Git(object):
     
     def run(self, command):
         """docstring for run"""
-        return subprocess.Popen(
+        proc = subprocess.Popen(
             command,
             cwd=settings.BUILD_ROOT,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
         )
+        return proc
 
 
 class Builder:
@@ -41,7 +46,8 @@ class Builder:
         self.steps = []
         self.pass_steps = []
         self.fail_steps = []
-        self.send('')
+        self.send('Builder.__init__()')
+        self.start()
     
     def start_runner(self):
         """
@@ -60,9 +66,15 @@ class Builder:
         """
         start a build
         """
+        
         try:
+            self.send("running: self.clone()")
             self.clone()
+            
+            self.send("running: self._load_buildsteps()")
             self._load_buildsteps()
+            
+            self.send("running: self.start_runner()")
             self.start_runner()
         except Exception, e:
             self.send("ERROR: %s" % (e))
@@ -120,6 +132,7 @@ class Builder:
     
     def _exec_step(self, step):
         current_step = Step(build=self.build, command=step)
+        self.send("Running step: %s" % (step))
         try:
             self.process = subprocess.Popen(
                 step,
@@ -133,13 +146,13 @@ class Builder:
             while self.process.poll() is None:
                 output = self.process.stdout.readline().strip()
                 if output:
-                    self.send("%s\n" % (output))
+                    self.send("%s" % (output))
             if self.process.returncode == 0:
                 current_step.state = 'c'
-                self.send("%s\n" % ('PASSED'))
+                self.send("%s" % ('PASSED'))
             else:
                 current_step.state = 'd'
-                self.send("%s\n" % ('FAILED'))
+                self.send("%s" % ('FAILED'))
             current_step.save()
         except Exception, e:
             raise e

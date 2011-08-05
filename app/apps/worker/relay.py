@@ -6,6 +6,7 @@ import gevent
 from gevent import pywsgi
 from gevent import queue
 from geventwebsocket.handler import WebSocketHandler
+from multiprocessing import Process, current_process, cpu_count
 import redis
 import re
 
@@ -16,6 +17,8 @@ class BuildRelay(object):
     
     """
     def __init__(self):
+        self.current_build = None
+        
         self._connect_redis()
         gevent.spawn(self.build_queue_listener)
         self._init_server()
@@ -39,7 +42,21 @@ class BuildRelay(object):
         print "serving on %s:%s" % connection
         self.server = pywsgi.WSGIServer(connection, self._route,
             handler_class=WebSocketHandler)
-        self.server.serve_forever()
+        try:
+            self.server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+    
+    
+    def start_build(self):
+        """docstring for start_build"""
+        build_id = self.redis.lpop('build_queue')
+        self.current_build = Process(
+            name='builder-%s' % build_id,
+            target=Builder,
+            args=(build_id,)
+        )
+        self.current_build.start()
     
     
     def build_queue_listener(self):
@@ -47,12 +64,12 @@ class BuildRelay(object):
         listen on the build queue for newly submitted builds
         """
         print "listening for incoming builds"
-        client = self.redis.pubsub()
-        client.subscribe('build_queue')
-        self.build_queue = client.listen()
         
         while True:
-            build = self.build_queue.next()
+            if self.redis.llen('build_queue') > 0:
+                if self.current_build == None:
+                    self.start_build()
+            gevent.sleep(0.5)
     
     
     def _route(self, environ, start_response):
@@ -80,68 +97,39 @@ class BuildRelay(object):
     def relay_status(self, start_response):
         """docstring for status"""
         start_response('200 OK', [('Content-Type', 'text/plain')])
-        return [
-            "status: running.",
-            " - builds in queue: %s" % (self.redis.llen('build_queue'))
-        ]
+        body = list()
+        body.append("status: running.")
+        body.append(" - builds in queue: %s" % (self.redis.llen('build_queue')))
+        body.append(' - current_build: %s' % self.current_build)
+        return body
     
     
     def worker_console(self, start_response, websocket):
         """docstring for status"""
         
+        websocket.send('connected...')
+        
         path_build_id = re.match(r'/worker/build/(?P<build_id>[\d]+)/console/', websocket.path)
         build_id = path_build_id.groupdict().get('build_id')
         
         if build_id:
-            websocket.send("build_id: %s" % (build_id))
-            self.current_build = Builder(id=build_id)
-            self.current_build.start()
-            
             last_index = 0
-            key = "build_output_%s" % self.build.id
+            key = "build_output_%s" % build_id
             
             while True:
                 console_length = self.redis.llen(key)
                 lines = self.redis.lrange(key, last_index, console_length)
-                if line:
+                if lines:
                     last_index = console_length
-                    for line in lines:
-                        websocket.send(line)
-                gevent.sleep(0.01)
+                    if type(lines) == type(list()):
+                        for line in lines:
+                            websocket.send('<div>%s</div>' % line)
+                gevent.sleep(0.25)
         
         elif websocket.path == '/worker/test':
             import os
             import random
             for i in xrange(10000):
                 websocket.send("0 %s %s\n" % (i, random.random()))
-                gevent.sleep(0.01)
+                gevent.sleep(0.25)
 
-
-# 
-# class BuildRelay(object):
-#     """
-#     
-#     """
-#     def __init__(self, port, path, queue):
-#         self.port = int(port)
-#         self.path = path
-#         self.queue = queue
-#         print "listener starting on 127.0.0.1:%s" % self.port
-#         listener = eventlet.listen(('127.0.0.1', self.port))
-#         wsgi.server(listener, self.dispatch)
-#     
-#     def dispatch(self, environ, start_response):
-#         if environ['PATH_INFO'] == self.path:
-#             return self.handle(environ, start_response)
-#     
-#     @websocket.WebSocketWSGI
-#     def handle(self, ws):
-#         if ws.path == self.path:
-#             while True:
-#                 message = ws.wait()
-#                 if message is None:
-#                     break
-#                 ws.send(message)
-#     
-#     def kill(self):
-#         return

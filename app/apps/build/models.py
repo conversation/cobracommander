@@ -48,3 +48,6 @@ class Step(models.Model):
     created_datetime = models.DateTimeField(blank=True, default=datetime.datetime.now)
     output = models.TextField(blank=True)
     state = models.CharField(blank=True, max_length=1, default="a", choices=STATE_CHOICES)
+    
+    def __unicode__(self):
+        return u"%s" % (self.command)

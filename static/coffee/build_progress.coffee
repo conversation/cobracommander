@@ -3,4 +3,6 @@ $ ->
     console.log "connecting to: #{build_output}"
     ws = new WebSocket(build_output)
     ws.onmessage = (e) ->
-        $('#output').prepend($('<div>').html(e.data))
+        $("#output").append(e.data).prop({
+            scrollTop: $("#output").prop("scrollHeight")
+        })

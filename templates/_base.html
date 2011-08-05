@@ -14,7 +14,7 @@
     <div id="container">
         {% block header %}
             <header>
-                <div>
+                <div class="grid">
                     {% block header-inner %}
                         <hgroup>
                             <a href="/" title="">
@@ -26,7 +26,7 @@
             </header>
         {% endblock header %}
         <section>
-            <div>
+            <div class="grid">
                 {% block main %}{% endblock %}
             </div>
         </section>
@@ -37,7 +37,7 @@
         </aside>
         {% block footer %}
             <footer>
-                <div>
+                <div class="grid">
                     {% block footer-inner %}{% endblock footer-inner %}
                 </div>
             </footer>

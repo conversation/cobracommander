@@ -1,35 +1,29 @@
-@function module($count:1){
-    @return (($module_width + $gutter) * $count)
+$grid_col_names:(
+    'one', 'two', 'three', 'four', 'five', 'six',
+    'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'
+);
+
+@function col($count:1){ @return (($grid_col_width + $grid_gutter) * $count); }
+
+@mixin pre_col($count:1){ margin-left: col($count); }
+@mixin post_col($count:1){ margin-right: col($count); }
+@mixin make_grid_classes{
+    @for $index from 1 through $grid_num_cols {
+        .grid-#{nth($grid_col_names, $index)} {
+            width: col($index);
+            float:left;
+            margin-right:$grid_gutter;
+        }
+        .grid-pre-#{nth($grid_col_names, $index)} { @include pre_col($index); }
+        .grid-post-#{nth($grid_col_names, $index)} { @include post_col($index); }
+    }
+    .last{ margin-right:0; }
 }
 
-@mixin grid_container{
+@mixin grid{
     margin:0 auto;
-    width: (($module_width + $gutter) * $num_modules);
-    @if $show_grid != false {
-        background-image:url(../images/grid.png);
-        background-position:$gutter/2 0;
-    }
+    width:col($grid_num_cols);
+    @include make_grid_classes;
 }
 
-@mixin module($count:1){
-    width: (($module_width + $gutter) * $count) - $gutter;
-    margin-right: $gutter/2;
-    margin-left: $gutter/2;
-    display: inline-block;
-    float: left;
-    zoom:1;
-    @if $show_grid != false {
-        outline: 1px solid rgba(0, 0, 255, 0.5);
-    }
-}
-
-@mixin first{ margin-left: 0; }
-@mixin last{ margin-right: 0; }
-
-@mixin pre_module($count:1){
-    margin-left: (($module_width + $gutter) * $count) + $gutter/2;
-}
-
-@mixin post_module($count:1){
-    margin-right: (($module_width + $gutter) * $count) + $gutter/2;
-}
+.grid{ @include grid; }
