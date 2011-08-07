@@ -9,6 +9,7 @@ import shutil
 import threading
 import redis
 import random
+import multiprocessing
 import subprocess, shlex, os, time
 
 from app.apps.build.models import Step
@@ -34,7 +35,7 @@ class Git(object):
 
 
 class Builder:
-    def __init__(self, id):
+    def __init__(self, id, queue):
         self.build = Build.objects.get(id=id)
         self.build_project = self.build.project
         self.remote = self.build_project.repo_clone_url
@@ -43,10 +44,10 @@ class Builder:
         self.git = Git(path=self.clone_path)
         self.redis = redis.Redis(**settings.REDIS_DATABASE)
         self.redis_key = "build_output_%s" % self.build.id
+        self.queue = queue
         self.steps = []
         self.pass_steps = []
         self.fail_steps = []
-        self.send('Builder.__init__()')
         self.start()
     
     def start_runner(self):
@@ -55,6 +56,7 @@ class Builder:
         """
         for step in self.steps:
             self._exec_step(step)
+        
     
     def send(self, message):
         """
@@ -76,16 +78,13 @@ class Builder:
             
             self.send("running: self.start_runner()")
             self.start_runner()
+            
+            self.send("finished, quitting.")
+            self.queue.put("QUIT", False)
         except Exception, e:
             self.send("ERROR: %s" % (e))
+            self.queue.put("QUIT", False)
             raise e
-    
-    def stop(self):
-        """
-        stop the build process
-        """
-        if hasattr(self, 'job') and self.job is not None:
-            self.runner.terminate()
     
     def _load_buildsteps(self):
         """
@@ -144,9 +143,10 @@ class Builder:
             current_step.state = 'b'
             current_step.save()
             while self.process.poll() is None:
-                output = self.process.stdout.readline().strip()
+                output = self.process.stdout.readline()
                 if output:
                     self.send("%s" % (output))
+                time.sleep(0.15)
             if self.process.returncode == 0:
                 current_step.state = 'c'
                 self.send("%s" % ('PASSED'))
@@ -155,4 +155,5 @@ class Builder:
                 self.send("%s" % ('FAILED'))
             current_step.save()
         except Exception, e:
+            self.send("Exception: %s" % (e))
             raise e

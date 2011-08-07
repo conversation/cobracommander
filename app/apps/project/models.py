@@ -9,7 +9,7 @@ class Project(models.Model):
     
     name = models.CharField(blank=False, max_length=100)
     name_slug = models.SlugField(blank=False, db_index=True)
-    repo_url = models.URLField(blank=False, verify_exists=True, db_index=True)
+    repo_url = models.URLField(blank=False, verify_exists=False, db_index=True)
     repo_clone_url = models.CharField(blank=False, max_length=255)
     branch = models.CharField(blank=False, max_length=100, default="master")
     description = models.TextField(blank=True)

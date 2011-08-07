@@ -6,7 +6,7 @@ import gevent
 from gevent import pywsgi
 from gevent import queue
 from geventwebsocket.handler import WebSocketHandler
-from multiprocessing import Process, current_process, cpu_count
+from multiprocessing import Process, Queue
 import redis
 import re
 
@@ -51,12 +51,25 @@ class BuildRelay(object):
     def start_build(self):
         """docstring for start_build"""
         build_id = self.redis.lpop('build_queue')
+        queue = Queue()
         self.current_build = Process(
             name='builder-%s' % build_id,
             target=Builder,
-            args=(build_id,)
+            args=(build_id, queue)
         )
         self.current_build.start()
+        while True:
+            try:
+                message = queue.get(False)
+                if message == "QUIT":
+                    self.current_build.terminate()
+                    self.current_build = None
+                    print "build id:%s completed - ready to build again." % (build_id)
+                    break
+                print message
+            except Exception, e: # Queue.Empty
+                pass
+            gevent.sleep(0.5)
     
     
     def build_queue_listener(self):
@@ -68,6 +81,9 @@ class BuildRelay(object):
         while True:
             if self.redis.llen('build_queue') > 0:
                 if self.current_build == None:
+                    print "starting new build worker."
+                    self.start_build()
+                elif isinstance(self.current_build, Process) and not self.current_build.is_alive():
                     self.start_build()
             gevent.sleep(0.5)
     
@@ -124,12 +140,12 @@ class BuildRelay(object):
                     if type(lines) == type(list()):
                         for line in lines:
                             websocket.send('<div>%s</div>' % line)
-                gevent.sleep(0.25)
+                gevent.sleep(0.5)
         
         elif websocket.path == '/worker/test':
             import os
             import random
             for i in xrange(10000):
                 websocket.send("0 %s %s\n" % (i, random.random()))
-                gevent.sleep(0.25)
+                gevent.sleep(0.5)
 
