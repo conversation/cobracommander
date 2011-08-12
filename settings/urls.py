@@ -11,6 +11,7 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('',
+	url(r'^', include('%s.app.apps.dashboard.urls' % settings.PROJECT_MODULE, namespace='dashboard')),
     url(r'^', include('%s.app.apps.project.urls' % settings.PROJECT_MODULE, namespace='project')),
     url(r'^', include('%s.app.apps.build.urls' % settings.PROJECT_MODULE, namespace='build')),
 )

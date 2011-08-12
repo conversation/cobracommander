@@ -1,0 +1,43 @@
+{% extends "_base.html" %}
+
+{% block aside %}
+  <header>
+    <h2>Build queue:</h2>
+  </header>
+  <ul>
+    {% for build in build_queue %}
+      <li>{{ build }}</li>
+    {% empty %}
+      <li>No builds in progress</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+
+{% block main %}
+  <section>
+    <header>
+    <h2>Projects:</h2>
+  </header>
+    {% if projects %}
+      <ul>
+      {% for project in projects %}
+        <li>
+          <a href="{{ project.get_absolute_url }}">{{ project }}</a>
+          {% if project.builds.all|length_is:0 %}
+            <p>You haven't run any builds yet. Need a hand setting up?</p>
+          {% else %}
+            <p>You have run builds!</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+      </ul>
+      <p><a href="{% url project:create %}">I must have more.</a></p>
+    {% else %}
+      <p>No projects yet :(. <a href="{% url project:create %}">Add a new Project</a></p>
+    {% endif %}
+  </section>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/dashboard.coffee"></script>
+{% endblock %}

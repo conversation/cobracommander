@@ -1,10 +1,11 @@
-from app.apps.worker.relay import BuildRelay
-
 from django.core.management.base import BaseCommand, CommandError
 from django.core import management
 from django.conf import settings
 from optparse import make_option
 import os
+
+from app.apps.worker.buildrelay import BuildRelay
+
 
 class Command(BaseCommand):
     help = 'Start the build worker process'
