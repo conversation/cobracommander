@@ -1,4 +1,4 @@
-import re, json, urlparse, logging
+import re, urlparse, logging
 
 import gevent
 from collections import defaultdict
@@ -6,10 +6,13 @@ from werkzeug.utils import redirect
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException, NotFound
+from django.core import serializers
+from django.utils import simplejson
 
 from .utils import get_logger
 from .wsgi import WSGIBase
 from .builder import Builder
+from .json_encoder import ModelJSONEncoder
 
 
 class StatusAccessor(object):
@@ -24,21 +27,24 @@ class StatusAccessor(object):
             self.status[key] = new_value
             self.has_changed = True
     
+    def _serialize(self, data):
+        return simplejson.dumps(data, cls=ModelJSONEncoder)
+
     def update(self):
         self.has_changed = False
         for key in self.status_keys:
             self._update_value_for_key(key, getattr(self, 'get_' + key)())
-        return (self.has_changed, self.status)
+        return (self.has_changed, self._serialize(self.status))
     
     def get_state(self):
         return self.builder.status['state']
     
     def get_build_queue(self):
-        return self.builder.status['build_queue']
+        return self.builder.status['queue']
     
     def get_active_build(self):
         if 'active_build' in self.builder.status:
-            return self.builder.status['active_build'].get('build')
+            return self.builder.status['active_build']
         return None
 
 
@@ -68,11 +74,13 @@ class BuildRelay(WSGIBase):
             while True:
                 status_changed, status = self.builder_status.update()
                 if status_changed or initial_connection:
+                    self.logger.info("Builder status has changed")
+                    self.logger.info("%s", status)
                     initial_connection = False
-                    websocket.send(json.dumps(status))
-                gevent.sleep(2)
+                    websocket.send(status)
+                gevent.sleep(1)
         status_changed, status = self.builder_status.update()
-        return Response(json.dumps(status))
+        return Response(status)
     
     def on_build(self, request, build_id):
         return Response('on_build build_id:%s' % build_id)
