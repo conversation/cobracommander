@@ -33,6 +33,7 @@ class Build(models.Model):
             'project_name_slug':self.project.name_slug
         })
 
+
 class Step(models.Model):
     """Sup"""
     
