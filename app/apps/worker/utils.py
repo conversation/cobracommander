@@ -2,7 +2,7 @@ from django.conf import settings
 import subprocess, logging
 
 def get_logger(name):
-    logging.basicConfig(level=logging.DEBUG, 
+    logging.basicConfig(level=logging.INFO, 
         format='[%(asctime)s] %(name)-28s %(levelname)-12s %(message)s')
     return logging.getLogger(name)
 
