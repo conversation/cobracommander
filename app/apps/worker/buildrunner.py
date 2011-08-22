@@ -1,5 +1,6 @@
 import redis
-import subprocess, shlex, os, time, random, multiprocessing, threading, shutil
+import subprocess, shlex, os, time, random, multiprocessing, threading,\
+    shutil, datetime
 
 from django.conf import settings
 from app.apps.build.models import Step
@@ -25,6 +26,14 @@ class BuildRunner:
         self.fail_steps = []
         self.start()
     
+    @property
+    def steps(self):
+        return {
+            'build_steps': self.steps,
+            'passing_steps': self.pass_steps,
+            'failing_steps': self.fail_steps
+        }
+
     def start_runner(self):
         """ execute the build command """
         for step in self.steps:
@@ -38,17 +47,13 @@ class BuildRunner:
     def start(self):
         """ start a build """
         try:
-            self.send("running: self.clone()")
+            self.build.start_datetime = datetime.datetime.now()
+            self.build.save()
             self.clone()
-            
-            self.send("running: self._load_buildsteps()")
             self._load_buildsteps()
-            
-            self.send("running: self.start_runner()")
+            self.send(self.steps)
             self.start_runner()
-            
-            self.send("finished, quitting.")
-            self.queue.put("QUIT", False)
+            self.queue.put("COMPLETE", False)
         except Exception, e:
             self.send("ERROR: %s" % (e))
             self.queue.put("QUIT", False)
