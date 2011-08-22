@@ -13,7 +13,10 @@ def show(request):
     """
     Dashboard show action
     """
-    projects = Project.objects.all()
+    projects = Project.objects.select_related().all()
+    for project in projects:
+      setattr(project, 'last_build', project.build_set.all()[:1][0])
+
     return render_to_response('dashboard/show.html', {
         "projects": projects
     }, context_instance=RequestContext(request))
