@@ -14,39 +14,51 @@
     <div id="container">
         {% block header %}
             <header>
-                <div class="grid">
-                    {% block header-inner %}
-                        <hgroup>
-                            <a href="/" title="">
-                                <h1>Cobra Commander</h1>
-                            </a>
-                        </hgroup>
-                    {% endblock header-inner %}
-                </div>
+                {% block header-inner %}
+                    <hgroup>
+                        <a href="/" title=""><h1>Cobra Commander</h1></a>
+                    </hgroup>
+                {% endblock header-inner %}
+                <div id="build-status"></div>
             </header>
         {% endblock header %}
         <section>
-            <div class="grid">
+            <nav>
+                <ul>
+                    <li><a href="{% url dashboard:show %}">Dashboard</a></li>
+                    <li>
+                        Projects
+                        <ul>
+                            {% for project in projects %}
+                                <li><a href="{{ project.get_absolute_url }}">{{ project }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    
+                    
+                </ul>
+            </nav>
+            <section>
                 {% block main %}{% endblock %}
-            </div>
-        </section>
-        <aside>
-          <div>
+            </section>
+            <aside>
                 {% block aside %}{% endblock %}
-            </div>
-        </aside>
+            </aside>
+        </section>
         {% block footer %}
             <footer>
-                <div class="grid">
-                    {% block footer-inner %}{% endblock footer-inner %}
+                <div>
+                    {% block footer-inner %}footer{% endblock footer-inner %}
                 </div>
             </footer>
         {% endblock footer %}
     </div>
+
     {% compress js %}
         <script type="text/javascript" src="{{ STATIC_URL }}scripts/vendor/jquery.1.6.1.js"></script>
         <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/application.coffee"></script>
         {% block scripts %}{% endblock scripts %}
     {% endcompress %}
+
 </body>
 </html>

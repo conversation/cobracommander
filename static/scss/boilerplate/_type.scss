@@ -1,5 +1,6 @@
-@function baseline($count:1){ @return $baseline * $count; }
-
+@function baseline($count:1){
+    @return ($baseline * $count);
+}
 
 body{
     font-size:14px;
@@ -28,6 +29,11 @@ h2{
 h3{
     font-size:18px;
     line-height:baseline(4);
+}
+
+h4{
+    font-size:15px;
+    line-height:baseline(3);
 }
 
 p, ul, ol{

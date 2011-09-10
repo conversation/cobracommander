@@ -1,0 +1,14 @@
+/*
+* _boilerplate.scss
+* 
+* boilerplate.scss sets up all the base level styling that is universal across
+* the entire application. This includes a CSS reset, generic typography, etc.
+* This file should only be imported once.
+*/
+
+@import "constants";
+@import "mixins";
+
+@import "boilerplate/reset";
+@import "boilerplate/type";
+@import "boilerplate/utils";

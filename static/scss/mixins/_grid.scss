@@ -13,16 +13,18 @@ $grid_col_names:(
             width: col($index);
             float:left;
             margin-right:$grid_gutter;
+            outline:1px solid #ccc;
         }
         .grid-pre-#{nth($grid_col_names, $index)} { @include pre_col($index); }
         .grid-post-#{nth($grid_col_names, $index)} { @include post_col($index); }
     }
-    .last{ margin-right:0; }
+    .grid-last{ margin-right:0; }
 }
 
 @mixin grid{
     margin:0 auto;
-    width:col($grid_num_cols);
+    width:col($grid_num_cols) + $grid_gutter;
+    overflow:auto;
     @include make_grid_classes;
 }
 

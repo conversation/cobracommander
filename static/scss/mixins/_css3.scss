@@ -1,0 +1,65 @@
+@function _prop_from_list($prop_list){
+  $property:'';
+  $separator:' ';
+  // this is used to properly format (what should be) a one-item length $shadows
+  // list because SCSS lists should be like fucking tuples. Ask me about it
+  // sometime you want me to start angrily ranting...
+  @if type-of(nth($prop_list, 1)) == 'list' {  $separator:', '; }
+  @for $i from 1 through length($prop_list){
+    $prop:nth($prop_list, $i);
+    @if length($prop) > 0 {
+      $property:#{$property}#{$prop}unquote(if($i == length($prop_list), '', '#{$separator}'));
+    }
+  }
+  @return #{$property};
+}
+
+@mixin rounded($radius){
+  -webkit-border-radius:$radius;
+  -moz-border-radius:$radius;
+  border-radius:$radius;
+}
+
+@mixin border-box{
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+}
+
+@mixin content-box{
+  box-sizing:content-box;
+  -moz-box-sizing:content-box;
+  -webkit-box-sizing:content-box;
+}
+
+@mixin box-shadow($shadows){
+  -webkit-box-shadow:_prop_from_list($shadows);
+  -moz-box-shadow:_prop_from_list($shadows);
+}
+
+@mixin text-shadow($shadows){
+  -webkit-text-shadow:_prop_from_list($shadows);
+     -moz-text-shadow:_prop_from_list($shadows);
+      -ms-text-shadow:_prop_from_list($shadows);
+       -o-text-shadow:_prop_from_list($shadows);
+          text-shadow:_prop_from_list($shadows);
+}
+
+@mixin linear-gradient($from, $to, $fallback:false){
+  // linear gradients only. sadpanda.
+  // if fallback colour is not passed then $from and $to are mixed.
+  background-color:if($fallback == false, mix($from, $to, 50%), $fallback);
+  background:-webkit-linear-gradient(top, $from, $to);
+  background:-moz-linear-gradient(top, $from, $to);
+  background:-ms-linear-gradient(top, $from, $to);
+  background:-o-linear-gradient(top, $from, $to);
+  background:linear-gradient(top, $from, $to);
+}
+
+@mixin transition($animation){
+  -webkit-transition:$animation;
+     -moz-transition:$animation;
+      -ms-transition:$animation;
+       -o-transition:$animation;
+          transition:$animation;
+}

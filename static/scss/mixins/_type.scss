@@ -1,0 +1,26 @@
+@function baseline($count:1){
+  @return $baseline * $count;
+}
+
+@function rem($size){
+  // convert a pixel value to be in rem units
+  @return ($size / $base_font_size) * 1rem;
+}
+
+@mixin font-size($size){
+  // convert px font size to cross-browser nice rem based font size
+  // see this for ref: http://snook.ca/archives/html_and_css/font-size-with-rem
+  $rem_font_size:'';
+  @if type-of($size) == 'number' {
+    @if unit($size) == 'px' { $rem_font_size:rem($size); }
+  }
+  font-size:$size;
+  @if $rem_font_size != '' { font-size:$rem_font_size; }
+}
+
+@mixin text-replace($image:false){
+  text-indent:-9999px;
+  @if($image != false){
+    background:$image;
+  }
+}

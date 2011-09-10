@@ -1,6 +1,13 @@
-@import "constants";
-@import "boilerplate/reset";
-@import "boilerplate/type";
-@import "boilerplate/grid";
-@import "boilerplate/utils";
+/*
+* application.scss
+* 
+* The main application stylesheet. Imports a stack of fun stuff.
+*/
 
+// import constants, boilerplate css (reset, typogtaphy, etc), and mixins
+@import "constants";
+@import "boilerplate";
+@import "mixins";
+
+// generic application styles
+@import "styles/base";
