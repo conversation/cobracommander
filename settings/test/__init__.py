@@ -4,6 +4,7 @@ from ..development import *
 
 # set ENV_ROOT using pwd in dev so as to not cock up the symlinks
 ENV_ROOT = os.path.abspath(os.path.join(os.path.abspath(os.getenv('PWD')), '../../'))
+TEST_ROOT = os.path.join(PROJECT_ROOT, 'test')
 
 SERVER_NAME = '%s-test.local' % PROJECT_NAME
 
