@@ -3,11 +3,12 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 import datetime
 
-from ..project.models import Project
+from ..target.models import Target
+
 
 class Build(models.Model):
     """(Project description)"""
-    
+
     STATE_CHOICES = (
         ("a", "pending",),
         ("b", "running",),
@@ -15,8 +16,7 @@ class Build(models.Model):
         ("d", "fail",),
     )
     
-    project = models.ForeignKey(Project)
-    ref = models.CharField(blank=False, max_length=100, db_index=True)
+    target = models.ForeignKey(Target)
     state = models.CharField(blank=True, max_length=1, default="a", choices=STATE_CHOICES)
     created_datetime = models.DateTimeField(blank=True, default=datetime.datetime.now)
     start_datetime = models.DateTimeField(blank=True, null=True)
@@ -24,13 +24,14 @@ class Build(models.Model):
     log = models.TextField(blank=True)
     
     def __unicode__(self):
-        return u"%s" % (self.ref)
+        return u"%s" % (self.target)
     
     @models.permalink
     def get_absolute_url(self):
+        # TODO: LOL, fix this!
         return ('build:show', (), {
             'build_id':self.id,
-            'project_name_slug':self.project.name_slug
+            'project_name_slug':self.target.project.name_slug
         })
 
 

@@ -16,6 +16,16 @@ html, body{ height: 100%; padding:0; margin:0; }
     -webkit-box-pack: start;
     -webkit-box-flex: 0;
     background-color: #383838;
+    hgroup{
+      float: left;
+    }
+    #status{
+      float: right;
+      color: white;
+      list-style: none;
+      margin: 0;
+      li{ float: left; margin-left: 20px; }
+    }
   }
 
   >section{
@@ -25,12 +35,32 @@ html, body{ height: 100%; padding:0; margin:0; }
     -webkit-box-align: stretch;
     background-color: #4e4e4e;
 
-    >nav, >aside{ padding: 60px 20px 0 20px; }
+    >nav ul#project-list, >aside{ padding: 60px 20px 0 20px; }
     >section{ padding: 20px; margin:40px; }
     >nav, >section, >aside{ background-color: white; }
     >nav{
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
       -webkit-box-flex: 0;
       width: 275px;
+      ul{
+        -webkit-box-flex: 1;
+        margin: 0;
+      }
+      ul#actions{
+        -webkit-box-flex: 0;
+        li{
+          display: block;
+          margin: 0;
+          >a{
+            display: block;
+            width: 50px;
+            height: 25px;
+            text-indent: -9999px;
+            background-color: red;
+          }
+        }
+      }
     }
     >section{
       -webkit-box-flex: 1;
@@ -45,5 +75,6 @@ html, body{ height: 100%; padding:0; margin:0; }
   >footer{
     -webkit-box-pack: end;
     -webkit-box-flex: 0;
+    padding: 20px;
   }
 }

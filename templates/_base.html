@@ -16,26 +16,33 @@
             <header>
                 {% block header-inner %}
                     <hgroup>
-                        <a href="/" title=""><h1>Cobra Commander</h1></a>
+                        <a href="{% url dashboard:show %}" title="Cobra Commander">
+                            <h1>Cobra Commander</h1>
+                        </a>
                     </hgroup>
                 {% endblock header-inner %}
-                <div id="build-status"></div>
+                <ul id="status">
+                    <li class="connection"></li>
+                    <li class="builder"></li>
+                </ul>
             </header>
         {% endblock header %}
         <section>
             <nav>
-                <ul>
-                    <li><a href="{% url dashboard:show %}">Dashboard</a></li>
+                <ul id="project-list">
+                    <li>Projects</li>
+                    {% for project in projects %}
+                        <li>
+                            <a href="{{ project.get_absolute_url }}">
+                                {{ project }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <ul id="actions">
                     <li>
-                        Projects
-                        <ul>
-                            {% for project in projects %}
-                                <li><a href="{{ project.get_absolute_url }}">{{ project }}</a></li>
-                            {% endfor %}
-                        </ul>
+                        <a href="{% url project:create %}">New project</a>
                     </li>
-                    
-                    
                 </ul>
             </nav>
             <section>
@@ -53,12 +60,17 @@
             </footer>
         {% endblock footer %}
     </div>
-
     {% compress js %}
+        <script type="text/coffeescript" charset="utf-8">window.cc = {}</script>
         <script type="text/javascript" src="{{ STATIC_URL }}scripts/vendor/jquery.1.6.1.js"></script>
-        <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/application.coffee"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}scripts/vendor/json2.js"></script>
+        <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/lib/BuildMonitor.coffee"></script>
+        <script type="text/coffeescript">
+            $ ->
+                url = "ws://localhost:9991/status"
+                new window.cc.BuildMonitor(url)
+        </script>
         {% block scripts %}{% endblock scripts %}
     {% endcompress %}
-
 </body>
 </html>

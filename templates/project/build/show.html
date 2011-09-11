@@ -1,7 +1,7 @@
 {% extends "_base.html" %}
 
 {% block main %}
-    Sup you're on the build page y'all
+    <h1>{{ project }}: {{ build }}</h1>
     <ol>
         {% for step in build_steps %}
             <li>
@@ -12,17 +12,24 @@
         {% endfor %}
     </ol>
     
-    <div id="output" style="
+    <div id="console-output" style="
         width:100%;
         height:500px;
         overflow-y:scroll;
         font-size:10px;
         font-family:monaco;
         border:1px solid #ccc;
-    "></div>
+        white-space: pre;
+    ">{{ build.log|linebreaksbr }}</div>
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript">window.build_id = {{ build.id }};</script>
-    <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/build_progress.coffee"></script>
+    <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/lib/BuildProgress.coffee"></script>
+    <script type="text/coffeescript">
+        $ ->
+            build_state = "{{ build.get_state_display }}"
+            build_id = {{ build.id }}
+            url = "ws://localhost:9991/build/#{build_id}/console"
+            new window.cc.BuildProgress(url)
+    </script>
 {% endblock %}

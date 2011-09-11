@@ -1,51 +1,18 @@
-import re, urlparse, logging
-
+import re, urlparse
 import gevent
+from django.utils import simplejson
 from collections import defaultdict
 from werkzeug.utils import redirect
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException, NotFound
-from django.core import serializers
-from django.utils import simplejson
 
 from .utils import get_logger
-from .wsgi import WSGIBase
+from .utils.wsgi import WSGIBase
+from .utils.json_encoder import ModelJSONEncoder
+from .status.status_accessor import StatusAccessor
+
 from .builder import Builder
-from .json_encoder import ModelJSONEncoder
-
-
-class StatusAccessor(object):
-    def __init__(self, builder):
-        self.has_changed = False
-        self.builder = builder
-        self.status = defaultdict(dict)
-        self.status_keys = ('state', 'build_queue', 'active_build',)
-        
-    def _update_value_for_key(self, key, new_value):
-        if self.status.get(key) != new_value:
-            self.status[key] = new_value
-            self.has_changed = True
-    
-    def _serialize(self, data):
-        return simplejson.dumps(data, cls=ModelJSONEncoder)
-
-    def update(self):
-        self.has_changed = False
-        for key in self.status_keys:
-            self._update_value_for_key(key, getattr(self, 'get_' + key)())
-        return (self.has_changed, self._serialize(self.status))
-    
-    def get_state(self):
-        return self.builder.status['state']
-    
-    def get_build_queue(self):
-        return self.builder.status['queue']
-    
-    def get_active_build(self):
-        if 'active_build' in self.builder.status:
-            return self.builder.status['active_build']
-        return None
 
 
 class BuildRelay(WSGIBase):
@@ -66,19 +33,29 @@ class BuildRelay(WSGIBase):
         super(BuildRelay, self).__init__()
 
     def on_root(self, request):
+        """ root http request """
         return Response('Sup!? :)')
     
     def on_status(self, request, websocket=None):
-        initial_connection = True
+        """
+        websocket request for status updates.
+        """
+        last_updated_status = None
         if websocket:
-            while True:
-                status_changed, status = self.builder_status.update()
-                if status_changed or initial_connection:
-                    self.logger.info("Builder status has changed")
-                    self.logger.info("%s", status)
+            initial_connection = True
+            while not websocket.websocket_closed:
+                if initial_connection:
                     initial_connection = False
+                    self.logger.info("New client listening on status (%s)",
+                        websocket.origin)
+                
+                status_changed, status = self.builder_status.update()
+                if status_changed or not last_updated_status:
+                    last_updated_status = status
+                    self.logger.info("status_changed has changed!")
+                    websocket.send('status updated')
                     websocket.send(status)
-                gevent.sleep(1)
+                gevent.sleep(0.25)
         status_changed, status = self.builder_status.update()
         return Response(status)
     
@@ -86,12 +63,15 @@ class BuildRelay(WSGIBase):
         return Response('on_build build_id:%s' % build_id)
     
     def on_build_output(self, request, build_id, websocket=None):
+        """
+        websocket request for pending or running build.
+        """
         if websocket:
             self.logger.debug("Client connected via websocket to on_build_output()")
             if build_id:
                 last_index = 0
                 redis_key = "build_output_%s" % build_id
-                while True:
+                while not websocket.websocket_closed:
                     try:
                         console_length = self.builder.redis.llen(redis_key)
                     except Exception, e:
@@ -100,10 +80,10 @@ class BuildRelay(WSGIBase):
                     if console_length:
                         lines = self.builder.redis.lrange(redis_key, last_index,
                             console_length)
+                        lines = filter(None, lines)
                         if lines:
                             last_index = console_length
                             if type(lines) == type(list()):
-                                for line in lines:
-                                    websocket.send('<div>%s</div>' % line)
-                    gevent.sleep(0.5)
+                                websocket.send(simplejson.dumps(lines))
+                    gevent.sleep(0.2)
             websocket.close()

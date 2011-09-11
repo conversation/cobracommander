@@ -1,22 +1,22 @@
 from django.db import models
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
 import datetime
 
 
 class Project(models.Model):
-    """(Project description)"""
+    """
+    A project represents the top level interpretation of the codebase to be
+    tested. A project may have one or many Targets (build targets).
+    """
     
     name = models.CharField(blank=False, max_length=100)
-    name_slug = models.SlugField(blank=False, db_index=True)
-    repo_url = models.URLField(blank=False, verify_exists=False, db_index=True)
-    repo_clone_url = models.CharField(blank=False, max_length=255)
-    branch = models.CharField(blank=False, max_length=100, default="master")
+    name_slug = models.SlugField(blank=False, db_index=True, unique=True)
+    url = models.CharField(blank=False, db_index=True, unique=True, max_length=255)
     description = models.TextField(blank=True)
     created_datetime = models.DateTimeField(blank=False, default=datetime.datetime.now)
     
     class Meta:
-        unique_together = ("name_slug", "branch")
+        pass
     
     def __unicode__(self):
         return u"%s" % (self.name)

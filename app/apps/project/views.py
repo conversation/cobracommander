@@ -8,6 +8,7 @@ import redis
 
 from .models import Project
 from .forms import ProjectForm
+from ..target.models import Target
 from ..build.models import Build
 
 
@@ -43,10 +44,10 @@ def show(request, project_name_slug):
     """docstring for show"""
     
     project = get_object_or_404(Project, name_slug=project_name_slug)
-    builds = Build.objects.filter(project=project)
+    targets = Target.objects.filter(project=project)
     return render_to_response('project/show.html', {
         "project": project,
-        "builds": builds
+        "targets": targets
     }, context_instance=RequestContext(request))
 
 
@@ -66,27 +67,6 @@ def config(request, project_name_slug):
         "build_templates": build_templates,
         "first_time": first_time
     }, context_instance=RequestContext(request))
-
-
-def build(request, project_name_slug):
-    """docstring for build"""
-    if request.method == 'POST':
-        if 'payload' in request.POST:
-            payload = json.loads(request.POST.get('payload'))
-            url = payload['repository']['url']
-            branch = string.replace(payload['ref'], 'refs/heads/', '')
-            ref = payload['after'] if 'after' in payload else 'HEAD'
-            project = get_object_or_404(Project, repo_url=url, branch=branch,
-                name_slug=project_name_slug)
-            build = Build(project=project, ref=ref)
-            build.save()
-            
-            build_queue = redis.Redis(**settings.REDIS_DATABASE)
-            build_queue.rpush('build_queue', build.id)
-            
-            return HttpResponseRedirect(build.get_absolute_url())
-        return HttpResponseBadRequest('')
-    raise Http404
 
 
 def delete(request, project_name_slug):

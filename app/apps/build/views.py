@@ -8,10 +8,11 @@ from ..project.models import Project
 
 def show(request, project_name_slug, build_id):
     """docstring for show"""
-    
+    project = get_object_or_404(Project, name_slug=project_name_slug)
     build = get_object_or_404(Build, id=build_id)
     build_steps = Step.objects.filter(build=build)
     return render_to_response('project/build/show.html', {
+        "project":project,
         "build": build,
         'build_steps':build_steps
     }, context_instance=RequestContext(request))

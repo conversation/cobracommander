@@ -2,7 +2,7 @@
 
 {% block aside %}
   <header>
-    <h2>Build queue:</h2>
+    <ol id="build-queue"></ol>
   </header>
 {% endblock %}
 
@@ -18,25 +18,25 @@
             <h1>{{ project }}</h1>
           </a>
         </header>
-        last build:
-        {% if project.last_build %}
-          <a href="{{ project.last_build.get_absolute_url }}">
-            {{ project.last_build }}
-          </a>
-        {% else %}
-          <p>You haven't run any builds yet. Need a hand setting up?</p>
-      {% endif %}
+        <ul>
+          {% for target in project.target_set.all %}
+            <li>
+              <form action="{% url target:build project_name_slug=project.name_slug branch=target.branch %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="build {{ target }}">
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
       </section>
     {% empty %}
       <section>
         You have not added any projects yet!
       </section>
     {% endfor %}
-    <p><a href="{% url project:create %}">I must have more.</a></p>
   </section>
 {% endblock %}
 
 {% block scripts %}
-  <script type="text/javascript" src="{{ STATIC_URL }}scripts/vendor/json2.js"></script>
   <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/dashboard.coffee"></script>
 {% endblock %}

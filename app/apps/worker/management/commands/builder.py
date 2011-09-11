@@ -4,7 +4,7 @@ from django.conf import settings
 from optparse import make_option
 import os
 
-from app.apps.worker.buildrelay import BuildRelay
+from app.apps.worker.build_relay import BuildRelay
 
 
 class Command(BaseCommand):

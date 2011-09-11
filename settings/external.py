@@ -36,9 +36,7 @@ REDIS_DATABASE = {
 
 # compressor
 # -----------------------------------------------
-COMPRESS = True # Automatically set to the opposite of DEBUG if NOT set
-if DEBUG:
-    COMPRESS_DEBUG_TOGGLE = 'nocompress' # GET arg that will turn of compression - only in dev mode
+COMPRESS_ENABLED = True # Automatically set to the opposite of DEBUG if NOT set
 COMPRESS_REBUILD_TIMEOUT = 0
 COMPRESS_URL = STATIC_URL
 COMPRESS_ROOT = STATIC_ROOT

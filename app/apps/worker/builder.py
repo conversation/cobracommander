@@ -7,8 +7,9 @@ from collections import defaultdict
 from django.conf import settings
 
 from .utils import get_logger
-from .buildrunner import BuildRunner
+from .build_runner import BuildRunner
 from app.apps.build.models import Build
+
 
 class Builder(object):
     """
@@ -17,64 +18,67 @@ class Builder(object):
     """
     def __init__(self):
         self.logger = get_logger(__name__)
-        self.redis_conn = None
+        self.redis_connection = None
         self.status = defaultdict(dict)
         self.status['active_build'] = None
-        self.status['state'] = 'idle'
-        self.status['queue'] = list()
+        self.status['pending_builds'] = list()
+        self.status['building'] = False
         gevent.spawn(self.run_builds)
         gevent.spawn(self.poll_build_queue)
     
     @property
     def redis(self):
-        if self.redis_conn == None:
+        if self.redis_connection == None:
             self.logger.info("Connecting to redis on %(host)s:%(port)s db:%(db)s",
                 settings.REDIS_DATABASE)
-            self.redis_conn = redis.Redis(**settings.REDIS_DATABASE)
-        return self.redis_conn
+            self.redis_connection = redis.Redis(**settings.REDIS_DATABASE)
+        return self.redis_connection
     
     @property
     def is_idle(self):
-        if self.status['state'] == 'idle' and not self.status['active_build']:
+        if not self.status['building'] and not self.status['active_build']:
             return True
         return False 
+    
+    @property
+    def queue(self):
+        return {
+            'active':   self.status.get('active_build'),
+            'pending':  self.status.get('pending_builds')
+        }
 
     def run_builds(self):
         self.logger.info("Waiting for builds to run")
         while True:
-            if len(self.status['queue']) and self.is_idle:
-                build = self.status['queue'].pop(0)
+            if len(self.status['pending_builds']) and self.is_idle:
+                self.status['active_build'] = self.status['pending_builds'].pop(0)
                 build_queue = Queue()
                 self.logger.info("Spawning new BuildRunner process for build id:%s",
-                    build.id)
-                process = Process(name='worker-%s' % build.id, target=BuildRunner,
-                    args=(build.id, build_queue))
-                self.status['active_build'] = dict()
-                self.status['active_build']['process'] = process
-                self.status['active_build']['build'] = build
-                self.status['state'] = 'building'
-                process.start()
+                    self.status['active_build'].id)
+                process = Process(name='worker-%s' % self.status['active_build'].id,
+                    target=BuildRunner, args=(self.status['active_build'].id,
+                    build_queue))
+                setattr(self.status['active_build'], 'process', process)
+                self.status['building'] = True
+                self.status['active_build'].process.start()
                 while True:
                     try:
                         exit_status = build_queue.get(False)
                         if exit_status == "COMPLETE" or exit_status == "QUIT":
+                            print "exit_status: %s" % exit_status
                             self.stop_build()
                             break
                     except Empty, e:
                         pass
-                    gevent.sleep(0.25)
-                self.stop_build() # cleanup
-            gevent.sleep(1.0)
+                    gevent.sleep(0.5)
+            gevent.sleep(2.0)
     
     def stop_build(self):
         if 'active_build' in self.status:
-            build = self.status['active_build']['build']
-            build.end_datetime = datetime.datetime.now()
-            build.save()
-            self.logger.info("Stopping build id: %s", build.id)
-            self.status['active_build']['process'].terminate()
-            del self.status['active_build']
-            self.status['state'] = 'idle'
+            self.logger.info("Stopping build id: %s", self.status['active_build'].id)
+            self.status['active_build'].process.terminate()
+            self.status['active_build'] = None
+            self.status['building'] = False
 
     def poll_build_queue(self):
         self.logger.info("Listening for incoming builds")
@@ -85,7 +89,7 @@ class Builder(object):
                 try:
                     build = Build.objects.select_related().get(id=build_id)
                     # append build_id onto internal state
-                    self.status['queue'].append(build)
+                    self.status['pending_builds'].append(build)
                     self.logger.info("Added build with id %s to queue.", build_id)
                 except Exception, e:
                     self.logger.error("Build with id %s does not exist yet was \
