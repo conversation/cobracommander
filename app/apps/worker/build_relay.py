@@ -35,7 +35,7 @@ class BuildRelay(WSGIBase):
     def on_root(self, request):
         """ root http request """
         return Response('Sup!? :)')
-    
+
     def on_status(self, request, websocket=None):
         """
         websocket request for status updates.
@@ -43,12 +43,14 @@ class BuildRelay(WSGIBase):
         last_updated_status = None
         if websocket:
             initial_connection = True
-            while not websocket.websocket_closed:
+            while True:
+                if websocket.websocket_closed:
+                    break
                 if initial_connection:
                     initial_connection = False
                     self.logger.info("New client listening on status (%s)",
                         websocket.origin)
-                
+
                 status_changed, status = self.builder_status.update()
                 if status_changed or not last_updated_status:
                     last_updated_status = status
@@ -58,20 +60,23 @@ class BuildRelay(WSGIBase):
                 gevent.sleep(0.25)
         status_changed, status = self.builder_status.update()
         return Response(status)
-    
+
     def on_build(self, request, build_id):
         return Response('on_build build_id:%s' % build_id)
-    
+
     def on_build_output(self, request, build_id, websocket=None):
         """
         websocket request for pending or running build.
         """
         if websocket:
-            self.logger.debug("Client connected via websocket to on_build_output()")
+            websocket.send('test')
+            self.logger.info("Client connected via websocket to on_build_output()")
             if build_id:
                 last_index = 0
                 redis_key = "build_output_%s" % build_id
-                while not websocket.websocket_closed:
+                while True:
+                    if websocket.websocket_closed:
+                        break
                     try:
                         console_length = self.builder.redis.llen(redis_key)
                     except Exception, e:
@@ -84,6 +89,7 @@ class BuildRelay(WSGIBase):
                         if lines:
                             last_index = console_length
                             if type(lines) == type(list()):
+                                pass
                                 websocket.send(simplejson.dumps(lines))
                     gevent.sleep(0.2)
-            websocket.close()
+            websocket.close_connection()
