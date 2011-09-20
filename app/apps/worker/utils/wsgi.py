@@ -14,7 +14,7 @@ class WSGIBase(object):
     """
     def __init__(self):
         self.serve()
-        
+
     def serve(self):
         """ start server, listen for incoming requests """
         # TODO: settings names are wrong?
@@ -27,12 +27,12 @@ class WSGIBase(object):
             self.server.serve_forever()
         except KeyboardInterrupt:
             pass
-    
+
     def wsgi_app(self, environ, start_response):
         """ Set up the response cycle """
         response = self.dispatch(Request(environ))
         return response(environ, start_response)
-    
+
     def dispatch(self, request):
         """
         dispatch the matched request to the view function based on on_*viewname*
