@@ -7,7 +7,7 @@ from collections import defaultdict
 from django.conf import settings
 
 from .utils import get_logger
-from .build_runner import BuildRunner
+from .runner.runner import Runner
 from app.apps.build.models import Build
 
 
@@ -25,7 +25,7 @@ class Builder(object):
         self.status['building'] = False
         gevent.spawn(self.run_builds)
         gevent.spawn(self.poll_build_queue)
-    
+
     @property
     def redis(self):
         if self.redis_connection == None:
@@ -33,13 +33,13 @@ class Builder(object):
                 settings.REDIS_DATABASE)
             self.redis_connection = redis.Redis(**settings.REDIS_DATABASE)
         return self.redis_connection
-    
+
     @property
     def is_idle(self):
         if not self.status['building'] and not self.status['active_build']:
             return True
-        return False 
-    
+        return False
+
     @property
     def queue(self):
         return {
@@ -56,7 +56,7 @@ class Builder(object):
                 self.logger.info("Spawning new BuildRunner process for build id:%s",
                     self.status['active_build'].id)
                 process = Process(name='worker-%s' % self.status['active_build'].id,
-                    target=BuildRunner, args=(self.status['active_build'].id,
+                    target=Runner, args=(self.status['active_build'].id,
                     build_queue))
                 setattr(self.status['active_build'], 'process', process)
                 self.status['building'] = True
@@ -72,7 +72,7 @@ class Builder(object):
                         pass
                     gevent.sleep(0.5)
             gevent.sleep(2.0)
-    
+
     def stop_build(self):
         if 'active_build' in self.status:
             self.logger.info("Stopping build id: %s", self.status['active_build'].id)
@@ -95,4 +95,4 @@ class Builder(object):
                     self.logger.error("Build with id %s does not exist yet was \
                         in build queue.", build_id)
             gevent.sleep(1.0)
-    
+

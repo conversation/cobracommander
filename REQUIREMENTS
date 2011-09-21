@@ -26,3 +26,4 @@ splinter
 GitPython
 lettuce
 eventlet
+dateutil

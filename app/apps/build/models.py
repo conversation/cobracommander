@@ -34,6 +34,14 @@ class Build(models.Model):
             'project_name_slug':self.target.project.name_slug
         })
 
+    @models.permalink
+    def get_stop_url(self):
+        # TODO: LOL, fix this!
+        return ('build:stop', (), {
+            'build_id':self.id,
+            'project_name_slug':self.target.project.name_slug
+        })
+
 
 class Step(models.Model):
     """Sup"""

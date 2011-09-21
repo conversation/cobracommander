@@ -7,19 +7,20 @@ window.cc.BuildProgress = class BuildProgress
 
     initWebsocket: =>
         if @websocket == null
+            console.log "connecting over websocket to: '#{@url}'"
             @websocket = new WebSocket(@url)
         @websocket.onopen = @onopen
         @websocket.onmessage = @onmessage
         @websocket.onclose = (event) =>
             @websocket = null
             window.setTimeout((=> @initWebsocket()), 2000)
-    
+
     onopen: =>
         return
-        
+
     onmessage: (event) =>
         @parseMessage(JSON.parse(event.data))
-    
+
     parseMessage: (data) =>
         lines = ""
         for line in data

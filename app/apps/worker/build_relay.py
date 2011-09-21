@@ -73,7 +73,7 @@ class BuildRelay(WSGIBase):
             self.logger.info("Client connected via websocket to on_build_output()")
             if build_id:
                 last_index = 0
-                redis_key = "build_output_%s" % build_id
+                redis_key = "build_%s_output" % build_id
                 while True:
                     if websocket.websocket_closed:
                         break

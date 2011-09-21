@@ -1,7 +1,19 @@
 {% extends "_base.html" %}
 
 {% block main %}
-    <h1>{{ project }}: {{ build }}</h1>
+    <section>
+        <header>
+            <h1>{{ project }}: {{ build }}</h1>
+        </header>
+
+        <form action="" id="stop-build">
+            <input type="submit" value="stop build">
+        </form>
+
+        <ol id="build-steps">
+            <li>loading build steps.</li>
+        </ol>
+    </section>
     <ol>
         {% for step in build_steps %}
             <li>
@@ -11,7 +23,7 @@
             </li>
         {% endfor %}
     </ol>
-    
+
     <div id="console-output" style="
         width:100%;
         height:500px;
