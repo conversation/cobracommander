@@ -5,6 +5,7 @@ from multiprocessing import Process, Queue
 from Queue import Empty
 from collections import defaultdict
 from django.conf import settings
+from copy import deepcopy
 
 from .utils import get_logger
 from .runner.runner import Runner
@@ -20,6 +21,7 @@ class Builder(object):
         self.logger = get_logger(__name__)
         self.redis_connection = None
         self.status = defaultdict(dict)
+        self.process = None
         self.status['active_build'] = None
         self.status['pending_builds'] = list()
         self.status['building'] = False
@@ -40,12 +42,11 @@ class Builder(object):
             return True
         return False
 
-    @property
-    def queue(self):
-        return {
+    def get_queue(self):
+        return deepcopy({
             'active':   self.status.get('active_build'),
             'pending':  self.status.get('pending_builds')
-        }
+        })
 
     def run_builds(self):
         self.logger.info("Waiting for builds to run")
@@ -55,12 +56,11 @@ class Builder(object):
                 build_queue = Queue()
                 self.logger.info("Spawning new BuildRunner process for build id:%s",
                     self.status['active_build'].id)
-                process = Process(name='worker-%s' % self.status['active_build'].id,
+                self.process = Process(name='worker-%s' % self.status['active_build'].id,
                     target=Runner, args=(self.status['active_build'].id,
                     build_queue))
-                setattr(self.status['active_build'], 'process', process)
                 self.status['building'] = True
-                self.status['active_build'].process.start()
+                self.process.start()
                 while True:
                     try:
                         exit_status = build_queue.get(False)
@@ -76,7 +76,7 @@ class Builder(object):
     def stop_build(self):
         if 'active_build' in self.status:
             self.logger.info("Stopping build id: %s", self.status['active_build'].id)
-            self.status['active_build'].process.terminate()
+            self.process.terminate()
             self.status['active_build'] = None
             self.status['building'] = False
 

@@ -26,7 +26,3 @@ class BuildRelay(WSGIWebsocketBase):
             Rule('/build/<build_id>/stop', endpoint=build.stop)
         ])
         super(BuildRelay, self).__init__()
-
-    def broadcast(self, clients, message):
-        for client in clients:
-            client.send(message)

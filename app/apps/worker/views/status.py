@@ -26,7 +26,7 @@ class BuilderStatus(object):
             self.clients.add(websocket)
 
             # always send the status to newly connecting clients
-            websocket.send(self.builder_status.update()[1])
+            websocket.send(self.builder_status.get_status())
 
             while True:
                 # wait for messages from the client, handle disconnect
@@ -43,7 +43,7 @@ class BuilderStatus(object):
             status_changed, status = self.builder_status.update()
             if status_changed:
                 self.broadcast(status)
-            gevent.sleep(0.1)
+            gevent.sleep(0.5)
 
     def broadcast(self, message):
         for client in self.clients:
