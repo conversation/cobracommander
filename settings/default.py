@@ -40,6 +40,8 @@ TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'en-au'
 ROOT_URLCONF = '%s.settings.urls' % PROJECT_MODULE
 IGNORABLE_404_STARTS = ('mail.pl', 'mailform.pl', 'mail.cgi', 'mailform.cgi', 'favicon.ico', 'favicon.ico/', '.php')
+DEFAULT_FROM_EMAIL = 'cobracommander@localhost'
+SERVER_EMAIL = 'cobracommander@localhost'
 BUILD_FILE_NAME = 'buildfile'
 
 
@@ -102,24 +104,28 @@ LOGGING = {
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
         },
-        'logfile': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.WatchedFileHandler',
+        'default': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(ensure_exists(environment('logs/')), '%s.log' % PROJECT_MODULE),
-            'formatter': 'verbose',
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'verbose',
         },
     },
     'loggers': {
+        '': {
+            'handlers': ['default'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
-        },
-        PROJECT_MODULE: {
-            'handlers': ['logfile'],
-            'level': 'DEBUG'
         }
     }
 }

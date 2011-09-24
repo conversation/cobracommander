@@ -19,15 +19,20 @@ window.cc.BuildMonitor = class BuildMonitor
             @setStatus('connection', 'reconnecting')
             @websocket = null
             window.setTimeout((=> @initWebsocket()), 2000)
-    
+
     onopen: =>
+        @websocket.send('hello world')
         @setStatus('connection', 'connected')
-    
+
     onmessage: (event) =>
+        console.log event.data
         @parseMessage(JSON.parse(event.data))
-    
+
     setStatus: (key, status) =>
         @status[key].html("#{status}")
-    
+
     parseMessage: (data) =>
-        console.log data
+        if data.building
+            @setStatus('builder', "Building")
+        else
+            @setStatus('builder', "Idle")

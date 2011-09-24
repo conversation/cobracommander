@@ -4,10 +4,11 @@ from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException, NotFound
 from geventwebsocket.handler import WebSocketHandler
 from gevent import pywsgi
+from collections import defaultdict
 from django.conf import settings
 
 
-class WSGIBase(object):
+class WSGIWebsocketBase(object):
     """
     Setup up basic functions afor WSGI app; dispatch of request response,
     etc...
@@ -26,7 +27,7 @@ class WSGIBase(object):
         try:
             self.server.serve_forever()
         except KeyboardInterrupt:
-            pass
+            raise
 
     def wsgi_app(self, environ, start_response):
         """ Set up the response cycle """
@@ -40,10 +41,5 @@ class WSGIBase(object):
         request environment
         """
         adapter = self.url_map.bind_to_environ(request.environ)
-        try:
-            endpoint, values = adapter.match()
-            if "wsgi.websocket" in request.environ:
-                values['websocket'] = request.environ["wsgi.websocket"]
-            return getattr(self, 'on_' + endpoint)(request, **values)
-        except HTTPException, e:
-            return e
+        endpoint, values = adapter.match()
+        return endpoint(request, **values)
