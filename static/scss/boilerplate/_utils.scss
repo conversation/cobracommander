@@ -1,30 +1,8 @@
-@mixin rounded($radius){
-    -webkit-border-radius: $radius;
-    -moz-border-radius: $radius;
-    border-radius: $radius;
-}
+.hidden{ display: none; visibility: hidden; }
+.invisible{ visibility: hidden; }
 
-@mixin border-box {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-}
-
-@mixin content-box {
-    box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-}
-
-@mixin clearfix{
-    &:before, &:after{
-        content: "\0020";
-        display: block;
-        height: 0;
-        overflow: hidden;
-    }
-    &:after{
-        clear: both;
-    }
-    zoom: 1;
-}
+.fl-left{ float:left; }
+.fl-right{ float:right; }
+.cl-left{ clear:left; }
+.cl-right{ clear:right; }
+.cl-both{ clear:both; }

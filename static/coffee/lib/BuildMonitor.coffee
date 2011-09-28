@@ -5,6 +5,7 @@ window.cc.BuildMonitor = class BuildMonitor
             'connection':   $('.connection', $('#status')),
             'builder':      $('.builder', $('#status'))
         }
+        @buildQueue = $('#build-queue')
         @queue = $('#build-queue')
         @websocket = null
         @initWebsocket()
@@ -36,3 +37,7 @@ window.cc.BuildMonitor = class BuildMonitor
             @setStatus('builder', "Building")
         else
             @setStatus('builder', "Idle")
+        if data.queue
+            if data.queue.active
+                @buildQueue.append("<li>#{data.queue.active}</li>")
+

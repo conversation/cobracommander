@@ -21,44 +21,56 @@
                         </a>
                     </hgroup>
                 {% endblock header-inner %}
-                <ul id="status">
-                    <li class="connection"></li>
-                    <li class="builder"></li>
-                </ul>
+                <nav>
+                    <ul id="project-list">
+                        <li>Projects</li>
+                        {% for project in projects %}
+                            <li>
+                                <a href="{{ project.get_absolute_url }}">
+                                    {{ project }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <ul id="actions">
+                        <li>
+                            <a href="{% url project:create %}">New project</a>
+                        </li>
+                    </ul>
+                </nav>
             </header>
         {% endblock header %}
         <section>
-            <nav>
-                <ul id="project-list">
-                    <li>Projects</li>
-                    {% for project in projects %}
-                        <li>
-                            <a href="{{ project.get_absolute_url }}">
-                                {{ project }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <ul id="actions">
-                    <li>
-                        <a href="{% url project:create %}">New project</a>
-                    </li>
-                </ul>
-            </nav>
-            <section>
-                {% block main %}{% endblock %}
-            </section>
-            <aside>
-                {% block aside %}{% endblock %}
-            </aside>
+            <div>
+                <section>
+                    {% block main %}{% endblock %}
+                </section>
+                <aside>
+                    <header>
+                        <ul id="status">
+                            <li class="connection"></li>
+                            <li class="builder"></li>
+                        </ul>
+                    </header>
+                    <ol id="build-queue">
+                        <li class="empty">No queued builds.</li>
+                    </ol>
+                    {% block aside %}{% endblock %}
+                </aside>
+            </div>
+            {% block footer %}
+                <footer>
+                    <div>
+                        <p id="version" class="fl-right">
+                            {{ app.version }}
+                        </p>
+                        <p id="builds" class="fr-right">
+                            xxx builds an still going strong!
+                        </p>
+                    </div>
+                </footer>
+            {% endblock footer %}
         </section>
-        {% block footer %}
-            <footer>
-                <div>
-                    {% block footer-inner %}footer{% endblock footer-inner %}
-                </div>
-            </footer>
-        {% endblock footer %}
     </div>
     {% compress js %}
         <script type="text/coffeescript" charset="utf-8">window.cc = {}</script>

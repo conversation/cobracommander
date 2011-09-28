@@ -24,11 +24,10 @@ class Runner:
     def __init__(self, build_id, parent_process_queue):
         self.logger = get_logger(__name__)
         self.build = Build.objects.select_related().get(id=build_id)
-        self.target = self.build.target
-        self.project = self.target.project
+        self.target = self.build.target_set.all()[0]
         self.parent_process = parent_process_queue
         self.codebase = os.path.join(settings.BUILD_ROOT,
-            self.project.name_slug)
+            self.build.project_name_slug)
         self.git = Git(path=self.codebase)
         self._redis_conn = None
         self.build_log = list()
@@ -99,7 +98,7 @@ class Runner:
             cmd = 'git fetch'
         # repo does not seem to exist, we should clone it
         else:
-            cmd = 'git clone -v "%s" "%s"' % (self.project.url, self.codebase)
+            cmd = 'git clone -v "%s" "%s"' % (self.build.project.url, self.codebase)
 
         # run the cmd
         self.console_output("running `%s`" % (cmd))
@@ -211,6 +210,12 @@ class Runner:
     def teardown(self):
         self.build.end_datetime = datetime.datetime.now()
         self.build.log = "\n".join(self.build_log)
+        duration_delta = self.build.end_datetime - self.build.start_datetime
+        self.build.duration_ms = duration_delta.seconds*1000000 + duration_delta.microseconds
+        if False in self.build_state:
+            self.build.state = 'd'
+        else:
+            self.build.state = 'c'
         self.build.save()
         self.console_output("Build completed.")
         self.parent_process.put("COMPLETE", False)

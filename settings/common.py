@@ -27,6 +27,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.core.context_processors.csrf',
     'django.core.context_processors.request',
+    'app.apps.system.context_processors.application',
 )
 
 TEMPLATE_TAGS = (
@@ -54,7 +55,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     # external
     'south',
     'compressor',
@@ -63,10 +64,10 @@ INSTALLED_APPS = (
     'django_html',
     'django_nose',
     'poseur',
-    
+
     # internal
-    'app.apps.project',
     'app.apps.target',
     'app.apps.build',
     'app.apps.worker',
+    'app.apps.project',
 )

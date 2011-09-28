@@ -4,16 +4,28 @@
   <section>
     <h1>{{ project }}</h1>
     <ol>
-      {% for target in targets %}
-        <li>
-          {{ target }}
-          <ul>
-            {% for build in target.build_set.all %}
-              <li>{{ build }}</li>
-            {% endfor %}
-          </ul>
-        </li>
-      {% endfor %}
-    </ol>
-  </section>  
+    {% for target in project.targets.all %}
+      <li>
+        {{ target.branch }}
+        <form action="{% url target:build project_name_slug=project.name_slug branch=target.branch %}" method="post">
+          {% csrf_token %}
+          <input type="submit" value="build">
+        </form>
+        <ol>
+          {% for build in target.builds.all %}
+            <li>
+              {{ build }}<br>
+              {{ build.get_state_display }}<br>
+              {{ build.created_datetime }}<br>
+              {{ build.start_datetime }}<br>
+              {{ build.end_datetime }}<br>
+              {{ build.duration }}<br>
+              {{ build.steps_set }}
+            </li>
+          {% endfor %}
+        </ol>
+      </li>
+    {% endfor %}
+  </ol>
+  </section>
 {% endblock %}

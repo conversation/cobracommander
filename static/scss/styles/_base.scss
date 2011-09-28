@@ -5,76 +5,122 @@ html, body{ height: 100%; padding:0; margin:0; }
 
 #container{
   display: -webkit-box;
-  -webkit-box-orient: vertical;
+  -webkit-box-orient: horizontal;
   -webkit-box-align: stretch;
   -webkit-box-pack: center;
   height: 100%;
 
-  >header, >section >footer{ padding: 20px; }
   >section{ padding: 0 inherit 0 inherit}
+
   >header{
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
     -webkit-box-pack: start;
     -webkit-box-flex: 0;
     background-color: #383838;
-    hgroup{
-      float: left;
+    >hgroup{
+      -webkit-box-flex: 0;
+      a{
+        display: block;
+        padding: 10px 20px;
+        text-decoration: none;
+        text-transform: uppercase;
+        h1{
+          @include text-shadow(0 1px 1px rgba(0,0,0,0.5));
+          font-size:13px;
+          margin: 0;
+          padding: 0;
+          color: white;
+        }
+      }
     }
-    #status{
-      float: right;
-      color: white;
-      list-style: none;
-      margin: 0;
-      li{ float: left; margin-left: 20px; }
-    }
-  }
-
-  >section{
-    display: -webkit-box;
-    -webkit-box-flex: 1;
-    -webkit-box-orient: horizontal;
-    -webkit-box-align: stretch;
-    background-color: #4e4e4e;
-
-    >nav ul#project-list, >aside{ padding: 60px 20px 0 20px; }
-    >section{ padding: 20px; margin:40px; }
-    >nav, >section, >aside{ background-color: white; }
     >nav{
       display: -webkit-box;
       -webkit-box-orient: vertical;
-      -webkit-box-flex: 0;
-      width: 275px;
+      -webkit-box-flex: 1;
       ul{
         -webkit-box-flex: 1;
         margin: 0;
+        li{
+          padding: 5px 20px;
+        }
       }
       ul#actions{
         -webkit-box-flex: 0;
+        background-color: #ddd;
         li{
           display: block;
           margin: 0;
+          padding: 0;
           >a{
             display: block;
-            width: 50px;
-            height: 25px;
+            width: 30px;
+            padding: 5px;
             text-indent: -9999px;
             background-color: red;
           }
         }
       }
     }
-    >section{
-      -webkit-box-flex: 1;
-      padding: 20px;
-    }
-    >aside{
-      -webkit-box-flex: 0;
-      width: 250px;
-    }
   }
 
-  >footer{
-    -webkit-box-pack: end;
-    -webkit-box-flex: 0;
-    padding: 20px;
+  >section{
+    display: -webkit-box;
+    -webkit-box-flex: 1;
+    -webkit-box-orient: vertical;
+    -webkit-box-align: stretch;
+    background-color: #4e4e4e;
+
+    >div{
+      display: -webkit-box;
+      -webkit-box-orient: horizontal;
+      -webkit-box-flex: 1;
+      -webkit-box-align: stretch;
+      min-width:760px;
+      >nav, >section, >aside{ background-color: white; }
+      >section{
+        -webkit-box-flex: 1;
+        padding: 20px;
+        z-index: 2;
+        position: relative;
+        @include box-shadow(2px 0 10px rgba(0,0,0,0.25));
+        overflow-x:auto;
+        overflow-y:scroll;
+      }
+      >aside{
+        display: -webkit-box;
+        -webkit-box-flex: 0;
+        -webkit-box-orient: vertical;
+        width: 250px;
+        background-color: #f1f1f1;
+        >header{
+          background-color: rgba(0,0,0,0.1);
+          border-bottom:1px solid rgba(0,0,0,0.1);
+          ul{ margin: 0; }
+        }
+        >ol#build-queue{
+          -webkit-box-flex: 1;
+          margin: 0;
+          border-top:1px solid rgba(255,255,255,1);
+          li{
+            padding:20px;
+            &.empty{
+              text-align: center;
+              font-size: 12px;
+              font-weight: bold;
+            }
+          }
+        }
+      }
+    }
+    >footer{
+      -webkit-box-flex: 0;
+      padding:5px 20px;
+      font-size: 12px;
+      background-color: #DDDDDD;
+      position:relative;
+      z-index: 3;
+      p{ margin: 0; }
+    }
   }
 }

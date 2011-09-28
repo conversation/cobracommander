@@ -3,17 +3,23 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 import datetime
 
-from ..project.models import Project
+from ..build.models import Build
 
 
 class Target(models.Model):
     """(Target description)"""
-    
-    project = models.ForeignKey(Project)
+    builds = models.ManyToManyField(Build, blank=True, null=True)
     branch = models.CharField(blank=False, max_length=100)
-    
+
     class Meta:
-        unique_together = ('project', 'branch')
-    
+        pass
+
     def __unicode__(self):
-        return u"%s:%s" % (self.project, self.branch)
+        return u"%s" % self.branch
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('build:show', (), {
+            'branch':self.branch,
+            'project_name_slug':self.project_name_slug
+        })

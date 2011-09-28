@@ -1,0 +1,42 @@
+{% load markup %}
+{% load typogrify %}
+
+<section>
+  <header>
+    <a href="{{ project.get_absolute_url }}">
+      <h1>{{ project }}</h1>
+    </a>
+    <a href="#">Add build target</a>
+  </header>
+
+  <a href="#">{{ project.url }}</a>
+  {{ project.description|markdown|typogrify }}
+
+  {% for target in project.targets.all %}
+    {% with target.builds.all|slice:":1"|first as build %}
+      <section>
+        <header>
+          <strong class="{{ build.get_state_display|slugify }}">{{ build.get_state_display }}</strong>
+          <a href="{{ target.branch.get_absolute_url }}">
+            <h2>{{ target.branch }}</h2>
+          </a>
+          <form action="{% url target:build project_name_slug=project.name_slug branch=target.branch %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="build">
+          </form>
+        </header>
+        <section>
+          <header>
+            <strong>Last build:</strong> {{ build.start_datetime }} &rarr; {{ build.end_datetime }} ({{ build.duration }})
+          </header>
+          <ol>
+            {% for step in build.step_set.all %}
+              <li><strong class="{{ step.get_state_display|slugify }}">{{ step.get_state_display }}</strong> <code>{{ step.command }}</code></li>
+            {% endfor %}
+          </ol>
+        </section>
+      </section>
+    {% endwith %}
+  {% endfor %}
+
+</section>

@@ -88,6 +88,7 @@ class Builder(object):
                 build_id = self.redis.lpop('build_queue')
                 try:
                     build = Build.objects.select_related().get(id=build_id)
+                    print build
                     # append build_id onto internal state
                     self.status['pending_builds'].append(build)
                     self.logger.info("Added build with id %s to queue.", build_id)

@@ -44,16 +44,12 @@ class StatusAccessor(object):
         return self._serialize(self.status)
 
     def update(self):
-        print "update()"
         self.has_changed = False
         for key in self.status_keys:
-            print " - checking key: '%s'" % key
             changed, value = getattr(self, 'check_' + key)()
             if changed:
-                print "  - has changed (%s -> %s)" % (self.status[key], value)
                 self.has_changed = True
             self.status[key] = value
-        print "\n"
         return (self.has_changed, self._serialize(self.status))
 
     def check_building(self):
@@ -63,12 +59,8 @@ class StatusAccessor(object):
         return (changed, self.builder.status['building'])
 
     def check_queue(self):
-
         def _check_queues(old, new):
-            print old, new
-            print len(old['pending']), ' - ', len(new['pending'])
             if len(old['pending']) != len(new['pending']):
-                print 'lengths are different'
                 return True
             return False
 
