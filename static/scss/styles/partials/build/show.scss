@@ -1,0 +1,28 @@
+#build-stages{
+  .stage{
+    margin-bottom:10px;
+    header{
+      padding: 10px;
+      background-color: #ccc;
+    }
+    ol.steps{
+      margin-left: 30px;
+      li{
+        margin-bottom: 10px;
+        &.pending{ background: #ccc; }
+        &.running{ background: orange; }
+        &.complete{
+          &.pass{ background: green; }
+          &.fail{ background: red; }
+        }
+      }
+    }
+  }
+}
+
+.console{
+  padding: 10px;
+  font-size: 11px;
+  overflow-y:scroll;
+  >div{ white-space: pre; }
+}

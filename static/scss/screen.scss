@@ -1,6 +1,6 @@
 /*
 * application.scss
-* 
+*
 * The main application stylesheet. Imports a stack of fun stuff.
 */
 
@@ -11,3 +11,5 @@
 
 // generic application styles
 @import "styles/base";
+
+@import "styles/partials/build/show";
