@@ -73,14 +73,14 @@
         </section>
     </div>
     {% compress js %}
-        <script type="text/coffeescript" charset="utf-8">window.cc = {}</script>
         <script type="text/javascript" src="{{ STATIC_URL }}scripts/vendor/jquery.1.6.1.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}scripts/vendor/json2.js"></script>
-        <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/lib/BuildMonitor.coffee"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}scripts/vendor/sugar.0.9.1.min.js"></script>
+        <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/App.coffee"></script>
+        <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/app/lib/WebSocket.coffee"></script>
+        <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/app/BuildQueue.coffee"></script>
         <script type="text/coffeescript">
-            $ ->
-                url = "ws://localhost:9991/status"
-                new window.cc.BuildMonitor(url)
+            $ -> new window.cc.BuildQueue("ws://localhost:9991/status")
         </script>
         {% block scripts %}{% endblock scripts %}
     {% endcompress %}
