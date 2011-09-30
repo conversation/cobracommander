@@ -35,6 +35,7 @@ class Runner:
         self.build_steps = list()
         self.pass_steps = list()
         self.fail_steps = list()
+        self.stage_output_buffer = defaultdict(list)
         self.run()
 
     @property
@@ -46,9 +47,9 @@ class Runner:
     @property
     def steps(self):
         return {
-            'build_steps': dict(self.build_steps),
-            'passing_steps': dict(self.pass_steps),
-            'failing_steps': dict(self.fail_steps)
+            'build_steps': (self.build_steps),
+            'passing_steps': (self.pass_steps),
+            'failing_steps': (self.fail_steps)
         }
 
     def _stage(stage):
@@ -65,6 +66,7 @@ class Runner:
         self.console_output_stage = stage
 
     def console_output(self, data):
+        self.stage_output_buffer[self.console_output_stage] += data
         self.push_data({
             'type':'console',
             'data':data
@@ -75,6 +77,14 @@ class Runner:
         push a message for the build onto the messsage queue
         """
         data['stage'] = self.console_output_stage
+        try:
+            lines = data['data']
+            lines = lines.replace("\n", "")
+            lines = smart_unicode(lines)
+            lines = escape(lines)
+            data['data'] = lines
+        except Exception, e:
+            pass
         self.redis.rpush("build_%s_output" % self.build.id, simplejson.dumps(data))
 
     def execute_cmd(self, cmd):
@@ -161,7 +171,7 @@ class Runner:
         """
         for sha, step in self.build_steps:
             current_step = Step(build=self.build, command=step,
-                start_datetime=datetime.datetime.now())
+                start_datetime=datetime.datetime.now(), sha=sha)
 
             self.push_data({
                 'type':'step_start',
@@ -170,14 +180,15 @@ class Runner:
             })
 
             # shell out and run the step command then handle the response and output
+            step_output = list()
             step_process = self.execute_cmd(step)
             while step_process.poll() is None:
                 line = step_process.stdout.readline()
                 if line:
-                    line = escape(smart_unicode("%s" % (line.replace("\n", ""))))
-                    self.build_log.append(line)
+                    step_output.append(line)
                     self.console_output(line)
                 time.sleep(0.01)
+            self.build_log += step_output
 
             # if the return code shows that the task exited normally then the
             # step passes
@@ -198,13 +209,20 @@ class Runner:
 
             # save the step execution out to the DB
             current_step.end_datetime = datetime.datetime.now()
+            current_step.log = "\n".join(step_output)
             current_step.save()
 
     @_stage('setup')
     def setup(self):
+        setup_step = Step(type='a', build=self.build, command='setup',
+                start_datetime=datetime.datetime.now())
         self.build.start_datetime = datetime.datetime.now()
         self.update_codebase()
         self.load_buildsteps()
+        setup_step.log = "\n".join(self.stage_output_buffer['setup'])
+        setup_step.end_datetime = datetime.datetime.now()
+        setup_step.save()
+
 
     @_stage('teardown')
     def teardown(self):
@@ -218,6 +236,7 @@ class Runner:
             self.build.state = 'c'
         self.build.save()
         self.console_output("Build completed.")
+        self.redis.delete("build_%s_output" % self.build.id)
         self.parent_process.put("COMPLETE", False)
 
     def run(self):
@@ -228,162 +247,3 @@ class Runner:
         self.run_build_steps()
         self.teardown()
 
-
-
-
-
-# ----------------------
-
-class BuildRunner:
-    def __init__(self, build_id, queue):
-        self.logger = get_logger(__name__)
-        self.build = Build.objects.get(id=build_id)
-        self.build_target = self.build.target
-        self.build_project = self.build_target.project
-        self.build_branch = 'origin/%s' % self.build_target.branch
-
-        self.clone_url = self.build_project.url
-        self.clone_path = os.path.join(settings.BUILD_ROOT,
-            self.build_project.name_slug)
-        self.git = Git(path=self.clone_path)
-
-        self.redis = redis.Redis(**settings.REDIS_DATABASE)
-        self.redis_key = "build_output_%s" % self.build.id
-        self.build_log = list()
-        self.build_state = list()
-        self.queue = queue
-        self.steps = []
-        self.pass_steps = []
-        self.fail_steps = []
-        self.start()
-
-    @property
-    def steps(self):
-        return {
-            'build_steps': self.steps,
-            'passing_steps': self.pass_steps,
-            'failing_steps': self.fail_steps
-        }
-
-    def run_build_steps(self):
-        """ execute the build command """
-        print "\nrun_build_steps()"
-
-        for step in self.steps:
-            self._exec_step(step)
-        time.sleep(5)
-
-    def push_data(self, message):
-        """ push a message for the build onto the messsage queue """
-        self.redis.rpush(self.redis_key, message)
-
-    def start(self):
-        """ start a build """
-        print "\nstart()"
-        try:
-            self.build.start_datetime = datetime.datetime.now()
-            self.build.save()
-            self.clone()
-            self._load_buildsteps()
-            self.run_build_steps()
-            print "\nrun_build_steps() has returned"
-            self.queue.put("COMPLETE", False)
-        except Exception, e:
-            self.push_data("ERROR: %s" % (e))
-            self.queue.put("QUIT", False)
-            raise e
-        self.build_complete()
-
-    def build_complete(self):
-        """ Perform cleanup in redis and propagate relevant stuff to DB. """
-        print "\nbuild_complete()"
-        self.build.log = "\n".join(self.build_log)
-        # self.build.state =
-        self.build.end_datetime = datetime.datetime.now()
-        self.build.save()
-        # remove key from redis, we no longer need it...
-        self.push_data("Build completed")
-        self.push_data("end")
-
-    def _load_buildsteps(self):
-        """
-        Try and load the buildfile from the repo.
-        If it fails then the build fails and we message why to the user
-        """
-        print "\n_load_buildsteps()"
-
-        try:
-            buildfile_path = os.path.abspath(os.path.join(self.clone_path,
-                settings.BUILD_FILE_NAME))
-            buildfile = open(buildfile_path, "rb")
-            current_step = None
-            for line in buildfile.readlines():
-                line = line.strip()
-                if line.startswith("#"):
-                    continue
-                if line == "[steps]":
-                    current_step = self.steps
-                elif line == "[pass]":
-                    current_step = self.pass_steps
-                elif line == "[fail]":
-                    current_step = self.fail_steps
-                elif len(line) > 0 and current_step != None:
-                    current_step.append(line)
-            buildfile.close()
-        except IOError, e:
-            self.push_data("Could not load build steps %s" % (e))
-
-    def clone(self):
-        """ pull down the remote repo """
-        print "\nclone()"
-
-        if os.path.exists(self.clone_path) and os.path.exists(os.path.join(self.clone_path, '.git')):
-            cmd = 'git fetch'
-            self.push_data("running `%s`" % (cmd))
-            output = self.git.run(cmd)
-            for line in output:
-                self.push_data(line)
-        else:
-            cmd = 'git clone -v "%s" "%s"' % (self.clone_url, self.clone_path)
-            self.push_data("running `%s`" % (cmd))
-            output = self.git.run(cmd)
-            for line in output:
-                self.push_data(line)
-        cmd = 'git reset --hard "%s"' % (self.build_branch)
-        self.push_data("running `%s`" % (cmd))
-        output = self.git.run(cmd)
-        for line in output:
-            self.push_data(line)
-
-    def _exec_step(self, step):
-        current_step = Step(build=self.build, command=step)
-        self.push_data("STEP: %s" % (step))
-        try:
-            self.process = subprocess.Popen(
-                step,
-                cwd=self.clone_path,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            current_step.state = 'b'
-            current_step.save()
-            while self.process.poll() is None:
-                output = self.process.stdout.readline()
-                if output:
-                    line = escape(smart_unicode("%s" % (output.replace("\n", ""))))
-                    self.build_log.append(line)
-                    self.push_data(line)
-                time.sleep(0.02)
-            if self.process.returncode == 0:
-                current_step.state = 'c'
-                self.build_state.append(True)
-                self.push_data("%s" % ('PASSED'))
-            else:
-                current_step.state = 'd'
-                self.build_state.append(False)
-                self.push_data("%s" % ('FAILED'))
-            current_step.save()
-        except Exception, e:
-            self.push_data("Exception: %s" % (e))
-            raise e
