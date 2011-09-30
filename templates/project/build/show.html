@@ -3,43 +3,54 @@
 {% block main %}
     <section>
         <header>
-            <h1>{{ project }}: {{ build }}</h1>
+            <h1>
+                <a href="{{ project.get_absolute_url }}">{{ project }}</a> &bull; <a href="{{ build.get_absolute_url }}">build {{ build }}</a>
+            </h1>
         </header>
-
         <form action="" id="stop-build">
             <input type="submit" value="stop build">
         </form>
     </section>
-    <ol>
-        {% for step in build_steps %}
-            <li>
-                <code>{{ step }}</code>
-                <br />
-                &mdash; {{ step.get_state_display }}
-            </li>
-        {% endfor %}
-    </ol>
 
-    <ol id="build-steps"></ol>
-
-<!--     <div id="console-output" style="
-        width:100%;
-        height:500px;
-        overflow-y:scroll;
-        font-size:10px;
-        font-family:monaco;
-        border:1px solid #ccc;
-        white-space: pre;
-    ">{{ build.log|linebreaksbr }}</div> -->
+    <section id="build-stages">
+        <section id="stage-setup" class="stage">
+            <header><strong>Setup</strong></header>
+            <div class="console">
+                {% for line in build.setup_step.log_lines %}
+                    <div>{{ line }}</div>
+                {% endfor %}
+            </div>
+        </section>
+        <section id="stage-build" class="stage">
+            <header><strong>Build</strong></header>
+            <ol class="steps">
+                {% for step in build.build_steps %}
+                    <li id="build-stage-{{ step.sha }}" class="{{ step.get_state_display }}">
+                        <strong>{{ step.command }}</strong>
+                        <div class="console">
+                            {% for line in step.log_lines %}
+                                <div>{{ line }}</div>
+                            {% endfor %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ol>
+        </section>
+        <section id="stage-teardown" class="stage">
+            <header><strong>Teardown</strong></header>
+            <ol class="steps"></ol>
+        </section>
+    </section>
 {% endblock %}
 
+
+
+
 {% block scripts %}
-    <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/lib/BuildProgress.coffee"></script>
-    <script type="text/coffeescript">
-        $ ->
-            build_state = "{{ build.get_state_display }}"
-            build_id = {{ build.id }}
-            url = "ws://localhost:9991/build/#{build_id}/console"
-            new window.cc.BuildProgress(url)
-    </script>
+    {% if not build.complete %}
+        <script type="text/coffeescript" src="{{ STATIC_URL }}coffee/app/BuildProgress.coffee"></script>
+        <script type="text/coffeescript">
+            $ -> new window.cc.BuildProgress("ws://localhost:9991/build/{{ build.id }}/console")
+        </script>
+    {% endif %}
 {% endblock %}
