@@ -29,6 +29,22 @@ class Build(models.Model):
     def duration(self):
         return u"%.2f seconds" % (float(self.duration_ms) / float(1000000))
 
+    def complete(self):
+        return self.state in ('c', 'd')
+
+    def build_steps(self):
+        return self.step_set.filter(type='b')
+
+    def setup_step(self):
+        step = self.step_set.filter(type='a')
+        if step:
+            return step
+
+    def teardown_step(self):
+        step = self.step_set.filter(type='c')[0]
+        if step:
+            return step
+
     class Meta:
         ordering = ['-created_datetime']
 
@@ -59,16 +75,27 @@ class Step(models.Model):
         ("d", "fail",),
     )
 
+    TYPE_CHOICES = (
+        ("a", "setup",),
+        ("b", "build",),
+        ("c", "teardown",)
+    )
+
     build = models.ForeignKey(Build)
+    type = models.CharField(blank=True, max_length=1, default="b", choices=TYPE_CHOICES)
+    sha = models.CharField(blank=True, max_length=255)
     command = models.CharField(blank=False, max_length=255)
     created_datetime = models.DateTimeField(blank=True, default=datetime.datetime.now)
     start_datetime = models.DateTimeField(blank=True, null=True)
     end_datetime = models.DateTimeField(blank=True, null=True)
-    output = models.TextField(blank=True)
+    log = models.TextField(blank=True)
     state = models.CharField(blank=True, max_length=1, default="a", choices=STATE_CHOICES)
 
     def __unicode__(self):
         return u"%s" % (self.command)
+
+    def log_lines(self):
+        return self.log.split("\n")
 
     class Meta:
         ordering = ['created_datetime']
