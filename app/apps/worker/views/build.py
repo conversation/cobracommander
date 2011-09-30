@@ -66,17 +66,17 @@ class BuildConsole(object):
                 if lines:
                     last_index = console_length
                     if type(lines) == type(list()):
+                        lines = map(simplejson.loads, lines)
                         self.console_buffer[build_id] += lines
-                        message = simplejson.dumps(lines)
-                        for client in self.clients[build_id]:
-                            client.send(message)
+                        for line in lines:
+                            for client in self.clients[build_id]:
+                                client.send(simplejson.dumps(line))
 
             gevent.sleep(0.05)
 
     def broadcast(self, message):
         for client in self.clients:
             client.send(message)
-
 
 def stop(request, build_id):
     return Response('Build stop id:%s.' % (build_id))
